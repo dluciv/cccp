@@ -4,7 +4,7 @@ Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `
 CCCP aims to be common frontend for them, allowing to free the user and developer from selecting them manually.
 
 This tool was initially created for personal use. But you are welcome to contribute, report issues, consider features, etc.
-I have almost no time to maintain and develop it above my personal needs, so the most welcome requests are those coming with pull requests =).
+I have almost no time to maintain and develop it beyound my personal needs, so the most welcome requests are those coming with pull requests =).
 
 ## Usage
 
@@ -31,6 +31,6 @@ Hacker notes =):
 
 ## Name
 
-CCCP – Common Clipboard Copy &amp; Paste. For Russian-speaking and -reading people may also spell as «СССР» — 'USSR' in Russian ☭🐻 =).
+CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻 =).
 
 The reason behind the name was to find some short abbrevation, which is still free. There is another tool — The GNU C-Compatible Compiler Preprocessor — which [theoretically can be invoked as `cccp` on Solaris](https://www.opennet.ru/man.shtml?topic=cccp&category=1), but in the wild life I only met C preprocessor invoked as `cpp`.
