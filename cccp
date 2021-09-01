@@ -81,6 +81,11 @@ case $1 in
     $PASTE
     exit $?
   ;;
+  '')
+    echo '`cccp c` -- copy STDIN to clipboard'
+    echo '`cccp p` -- paste clipboard to STDOUT'
+    echo '`cccp ac whatever you want` -- copy `whatever you want` to clipboard'
+  ;;
   *)
     >&2 echo "Command '$1' not supported"
     exit -1
