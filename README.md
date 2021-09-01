@@ -1,7 +1,7 @@
 # CCCP
 
 Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and even `clip.exe` and PowerShell functions to access clipboard.
-CCCP aims to be common frontend for them, allowing to free the user and developer from selecting them manually.
+CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
 
 This tool was initially created for personal use. But you are welcome to contribute, report issues, consider features, etc.
 I have almost no time to maintain and develop it beyound my personal needs, so the most welcome requests are those coming with pull requests =).

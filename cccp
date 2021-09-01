@@ -63,8 +63,8 @@ case $BACKEND in
     PASTE='wl-paste'
   ;;
   powershell)
-    >&2 echo "Powershell backend is not yet implemented"
-    exit -1
+    COPY='cat | clip.exe'
+    PASTE='powershell.exe -noprofile -command Get-Clipboard'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
@@ -74,11 +74,11 @@ esac
 
 case $1 in
   c)
-    $COPY
+    eval $COPY
     exit $?
   ;;
   p)
-    $PASTE
+    eval $PASTE
     exit $?
   ;;
   '')
