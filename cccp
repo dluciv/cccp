@@ -63,7 +63,12 @@ case $BACKEND in
     PASTE='wl-paste'
   ;;
   powershell)
-    COPY='cat | clip.exe'
+    # Scripting for Windows is, as usual, a kind of feast.
+    # PowerShell needs multiline input and proper encoding conversion.
+    # It will likely require some investigation and a piece of shell code
+    # for this script. Pull requests with improvements are welcome! =)
+    # Right now we only have a sort of completely non-unicode hack...
+    COPY='WCP=$(cmd /c chcp); WCP=${WCP##* }; WCP=$(echo -e $WCP | tr -d [:space:]); iconv -t $WCP | clip.exe'
     PASTE='powershell.exe -noprofile -command Get-Clipboard'
   ;;
   *)
