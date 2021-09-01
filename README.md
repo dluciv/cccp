@@ -1,6 +1,33 @@
 # CCCP
 
-Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and even `clip.exe` and PowerShell functions to access clipboard. CCCP aims to be common frontend for them, allowing to free the user and developer from selecting them manually.
+Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and even `clip.exe` and PowerShell functions to access clipboard.
+CCCP aims to be common frontend for them, allowing to free the user and developer from selecting them manually.
+
+This tool was initially created for personal use. But you are welcome to contribute, report issues, consider features, etc.
+I have almost no time to maintain and develop it above my personal needs, so the most welcome requests are those coming with pull requests =).
+
+## Usage
+
+* `cccp c` reads `STDIN` and copies it to the clipboard
+* `cccp p` pastes from the clipboard to `STDOUT`
+* `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard
+
+`cccp`, except its configuration (see below) can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it).
+
+## Configuration
+
+With zero configuration it tries to autodetect the backend. However you can either override or help it (to run faster) by placing simple configuration file like
+
+```
+BACKEND=wayland
+```
+
+named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_CONFIG_HOME`).
+
+Hacker notes =):
+
+* You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
+* `cccp.conf` is just an SH script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 
 ## Name
 

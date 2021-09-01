@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# debug
+# set -x
+
+if [[ "$1" == "ac" ]]
+then # Arg copy
+  CM=$0
+  shift 1
+  echo "$@" | $CM c
+  exit $?
+fi
+
+autodetect_backend () {
+  # Based on https://stackoverflow.com/a/8597411/539470
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+      echo wl-clipboard
+    else # consider this as fallback for Linux
+      echo xclip
+    fi
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    echo pbcopypaste
+  elif [[ "$OSTYPE" == "cygwin" ]]; then
+    echo powershell
+  elif [[ "$OSTYPE" == "msys" ]]; then
+    echo powershell
+  elif [[ "$OSTYPE" == "win32" ]]; then
+    echo powershell
+  elif [[ "$OSTYPE" == "freebsd"* ]]; then
+    echo xclip
+  else
+    >&2 echo "No idea on backend for OSTYPE '$OSTYPE'"
+    echo
+    exit -1
+  fi
+}
+
+if [ -z "$CCCP_BACKEND" ]
+then # get if from config (preferred) of autodetect
+  CH="${XDG_CONFIG_HOME:-$HOME/.config}"
+  if [ -r "$CH/cccp.conf" ]
+  then
+    . $CH/cccp.conf
+  else
+    BACKEND=$(autodetect_backend)
+  fi
+else # or override
+  BACKEND=$CCCP_BACKEND
+fi
+
+case $BACKEND in
+  pbcopypaste)
+    COPY='pbcopy'
+    PASTE='pbpaste'
+  ;;
+  xclip)
+    COPY='xclip -selection clipboard -in'
+    PASTE='xclip -selection clipboard -out'
+  ;;
+  wl-clipboard)
+    COPY='wl-copy'
+    PASTE='wl-paste'
+  ;;
+  powershell)
+    >&2 echo "Powershell backend is not yet implemented"
+    exit -1
+  ;;
+  *)
+    >&2 echo "Backend '$BACKEND' not supported"
+    exit -1
+  ;;
+esac
+
+case $1 in
+  c)
+    $COPY
+    exit $?
+  ;;
+  p)
+    $PASTE
+    exit $?
+  ;;
+  *)
+    >&2 echo "Command '$1' not supported"
+    exit -1
+  ;;
+esac
