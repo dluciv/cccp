@@ -12,7 +12,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 * `cccp p` pastes from the clipboard to `STDOUT`
 * `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard
 
-`cccp`, except its configuration (see below) can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it).
+`cccp` can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it).
 
 ## Configuration
 
