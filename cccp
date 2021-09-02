@@ -29,7 +29,7 @@ autodetect_backend () {
     echo powershell
   elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo xclip
-  else
+  else                                         echo 
     >&2 echo "No idea on backend for OSTYPE '$OSTYPE'"
     echo
     exit -1
@@ -64,10 +64,10 @@ case $BACKEND in
   ;;
   powershell)
     # Scripting for Windows is, as usual, a kind of feast.
-    WIN_CP=$(cmd.exe /c chcp)
+    WIN_CP=$(cmd.exe /C chcp </dev/null)
     WIN_CP=${WIN_CP##* }
     WIN_CP=$(echo -e $WIN_CP | tr -d [:space:])
-    COPY="cmd.exe /c chcp 65001 >/dev/null; cat | clip.exe; cmd.exe /c chcp $WIN_CP >/dev/null"
+    COPY="cmd.exe /C chcp 65001 </dev/null >/dev/null; cat | clip.exe; cmd.exe /C chcp $WIN_CP </dev/null >/dev/null"
     PASTE='powershell.exe -noprofile -command Get-Clipboard'
   ;;
   *)
