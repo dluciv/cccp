@@ -19,6 +19,8 @@ autodetect_backend () {
     else # consider this as fallback for Linux
       echo xclip
     fi
+  elif [[ "$OSTYPE" == "linux-android"* ]]; then
+    echo termux-clipboard
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo pbcopypaste
   elif [[ "$OSTYPE" == "cygwin" ]]; then
@@ -61,6 +63,10 @@ case $BACKEND in
   wl-clipboard)
     COPY='wl-copy'
     PASTE='wl-paste'
+  ;;
+  termux-clipboard)
+    COPY='termux-clipboard-set'
+    PASTE='termux-clipboard-get'
   ;;
   powershell)
     # Scripting for Windows is, as usual, a kind of feast.

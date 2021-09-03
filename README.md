@@ -1,6 +1,6 @@
 # CCCP
 
-Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and even `clip.exe` and PowerShell functions to access clipboard.
+Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and different alternatives to access clipboard.
 CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
 
 This tool was initially created for personal use. But you are welcome to contribute, report issues, suggest features, etc.
@@ -21,6 +21,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 CCCP is not a standalone tool. For some platforms, it also depends on tools, which are not always installed by default:
 
 * Linux — `xclip` and/or `wl-clipboard`, depending on your environment.
+* Android with Termux — [`termux-api` package](https://github.com/termux/termux-api-package) + [Termux:API](https://github.com/termux/termux-api)
 * Windows — any Sh or Bash (Cygwin, MSYS, etc.) and PowerShell (now it is usually available out of the box).
 
 ### Configuration
