@@ -71,8 +71,7 @@ case $BACKEND in
   powershell)
     # Scripting for Windows is, as usual, a kind of feast.
     WIN_CP=$(cmd.exe /C chcp </dev/null)
-    WIN_CP=${WIN_CP##* }
-    WIN_CP=$(echo -e $WIN_CP | tr -d [:space:])
+    WIN_CP=${WIN_CP//[^[:digit:]]/}
     COPY="cmd.exe /C chcp 65001 </dev/null >/dev/null; cat | clip.exe; cmd.exe /C chcp $WIN_CP </dev/null >/dev/null"
     PASTE='powershell.exe -noprofile -command Get-Clipboard'
   ;;
