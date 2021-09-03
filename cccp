@@ -24,11 +24,11 @@ autodetect_backend () {
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo pbcopypaste
   elif [[ "$OSTYPE" == "cygwin" ]]; then
-    echo powershell
+    echo windows
   elif [[ "$OSTYPE" == "msys" ]]; then
-    echo powershell
+    echo windows
   elif [[ "$OSTYPE" == "win32" ]]; then
-    echo powershell
+    echo windows
   elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo xclip
   else                                         echo 
@@ -36,6 +36,29 @@ autodetect_backend () {
     echo
     exit -1
   fi
+}
+
+win_clip_copy () {
+  # What a pain...
+  WIN_CP=$(cmd.exe /C chcp </dev/null)
+  WIN_CP=${WIN_CP//[^[:digit:]]/}
+  TMP_BAT=$(mktemp -p $TMP copy_XXXXXX.bat)
+  TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
+  echo -ne "@echo off\r\nchcp 65001\r\nclip <\"$(cygpath -ma $TMP_TXT)\"\r\nchcp $WIN_CP\r\n" >$TMP_BAT
+  cat >$TMP_TXT
+  cmd.exe /c "$(cygpath -ma $TMP_BAT)" >/dev/null
+  rm $TMP_TXT $TMP_BAT
+}
+
+win_clip_paste() {
+  WIN_CP=$(cmd.exe /C chcp </dev/null)
+  WIN_CP=${WIN_CP//[^[:digit:]]/}
+  TMP_BAT=$(mktemp -p $TMP copy_XXXXXX.bat)
+  TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
+  echo -ne "@echo off\r\nchcp 65001\r\npowershell.exe -noprofile -command Get-Clipboard >\"$(cygpath -ma $TMP_TXT)\"\r\nchcp $WIN_CP\r\n" >$TMP_BAT
+  cmd.exe /c "$(cygpath -ma $TMP_BAT)" >/dev/null
+  echo -n "$(< $TMP_TXT)"  # Remove last newline
+  rm $TMP_TXT $TMP_BAT
 }
 
 if [ -z "$CCCP_BACKEND" ]
@@ -68,12 +91,10 @@ case $BACKEND in
     COPY='termux-clipboard-set'
     PASTE='termux-clipboard-get'
   ;;
-  powershell)
+  windows)
     # Scripting for Windows is, as usual, a kind of feast.
-    WIN_CP=$(cmd.exe /C chcp </dev/null)
-    WIN_CP=${WIN_CP//[^[:digit:]]/}
-    COPY="cmd.exe /C chcp 65001 </dev/null >/dev/null; cat | clip.exe; cmd.exe /C chcp $WIN_CP </dev/null >/dev/null"
-    PASTE='powershell.exe -noprofile -command Get-Clipboard'
+    PASTE='win_clip_paste'
+    COPY='win_clip_copy'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
