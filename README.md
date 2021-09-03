@@ -18,7 +18,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 `cccp` can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it).
 
-CCCP is not a standalone tool. For some platforms, it also depends on tools, which are not always installed by default:
+CCCP is not a standalone tool. For the most platforms, it also depends on tools, which are not always installed by default:
 
 * Linux — `xclip` and/or `wl-clipboard`, depending on your environment.
 * Android with Termux — [`termux-api` package](https://github.com/termux/termux-api-package) + [Termux:API](https://github.com/termux/termux-api)
