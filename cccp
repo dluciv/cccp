@@ -23,12 +23,8 @@ autodetect_backend () {
     echo termux-clipboard
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo pbcopypaste
-  elif [[ "$OSTYPE" == "cygwin" ]]; then
-    echo windows
-  elif [[ "$OSTYPE" == "msys" ]]; then
-    echo windows
-  elif [[ "$OSTYPE" == "win32" ]]; then
-    echo windows
+  elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    echo powershell
   elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo xclip
   else                                         echo 
@@ -38,27 +34,18 @@ autodetect_backend () {
   fi
 }
 
-win_clip_copy () {
-  # What a pain...
-  WIN_CP=$(cmd.exe /C chcp </dev/null)
-  WIN_CP=${WIN_CP//[^[:digit:]]/}
-  TMP_BAT=$(mktemp -p $TMP copy_XXXXXX.bat)
+psh_clip_copy () {
   TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
-  echo -ne "@echo off\r\nchcp 65001\r\nclip <\"$(cygpath -ma $TMP_TXT)\"\r\nchcp $WIN_CP\r\n" >$TMP_BAT
   cat >$TMP_TXT
-  cmd.exe /c "$(cygpath -ma $TMP_BAT)" >/dev/null
-  rm $TMP_TXT $TMP_BAT
+  powershell.exe -noprofile -command "[IO.File]::ReadAllText('$(cygpath -ma $TMP_TXT)', (New-Object System.Text.UTF8Encoding \$False)) | Set-Clipboard"
+  rm $TMP_TXT
 }
 
-win_clip_paste() {
-  WIN_CP=$(cmd.exe /C chcp </dev/null)
-  WIN_CP=${WIN_CP//[^[:digit:]]/}
-  TMP_BAT=$(mktemp -p $TMP copy_XXXXXX.bat)
+psh_clip_paste() {
   TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
-  echo -ne "@echo off\r\nchcp 65001\r\npowershell.exe -noprofile -command Get-Clipboard >\"$(cygpath -ma $TMP_TXT)\"\r\nchcp $WIN_CP\r\n" >$TMP_BAT
-  cmd.exe /c "$(cygpath -ma $TMP_BAT)" >/dev/null
-  echo -n "$(< $TMP_TXT)"  # Remove last newline
-  rm $TMP_TXT $TMP_BAT
+  powershell.exe -noprofile -command "[IO.File]::WriteAllText('$(cygpath -ma $TMP_TXT)', (Get-Clipboard), (New-Object System.Text.UTF8Encoding \$False))" >/dev/null
+  cat $TMP_TXT
+  rm $TMP_TXT
 }
 
 if [ -z "$CCCP_BACKEND" ]
@@ -91,10 +78,10 @@ case $BACKEND in
     COPY='termux-clipboard-set'
     PASTE='termux-clipboard-get'
   ;;
-  windows)
+  powershell)
     # Scripting for Windows is, as usual, a kind of feast.
-    PASTE='win_clip_paste'
-    COPY='win_clip_copy'
+    PASTE='psh_clip_paste'
+    COPY='psh_clip_copy'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
