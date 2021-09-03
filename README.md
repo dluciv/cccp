@@ -22,7 +22,7 @@ CCCP is not a standalone tool. For some platforms, it also depends on tools, whi
 
 * Linux — `xclip` and/or `wl-clipboard`, depending on your environment.
 * Android with Termux — [`termux-api` package](https://github.com/termux/termux-api-package) + [Termux:API](https://github.com/termux/termux-api)
-* Windows — any Sh or Bash (Cygwin, MSYS, etc.) and PowerShell (now it is usually available out of the box).
+* Windows — any Bash (Cygwin, MSYS, etc.) and PowerShell (now it is usually available out of the box).
 
 ### Configuration
 
