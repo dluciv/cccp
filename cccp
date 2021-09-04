@@ -37,14 +37,16 @@ autodetect_backend () {
 psh_clip_copy () {
   TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
   cat >$TMP_TXT
+  unix2dos -o -q $TMP_TXT
   powershell.exe -noprofile -command "[IO.File]::ReadAllText('$(cygpath -ma $TMP_TXT)', (New-Object System.Text.UTF8Encoding \$False)) | Set-Clipboard"
   rm $TMP_TXT
 }
 
 psh_clip_paste() {
   TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
-  powershell.exe -noprofile -command "[IO.File]::WriteAllText('$(cygpath -ma $TMP_TXT)', (Get-Clipboard), (New-Object System.Text.UTF8Encoding \$False))" >/dev/null
-  cat $TMP_TXT
+  powershell.exe -noprofile -command "Get-Clipboard | Set-Content -Encoding utf8 -Path '$(cygpath -ma $TMP_TXT)'" >/dev/null
+  dos2unix -o -q $TMP_TXT
+  head -c -1 $TMP_TXT # Skip trailing newline
   rm $TMP_TXT
 }
 
