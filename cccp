@@ -74,7 +74,7 @@ case $BACKEND in
   ;;
   wl-clipboard)
     COPY='wl-copy'
-    PASTE='wl-paste'
+    PASTE='wl-paste -n'
   ;;
   termux-clipboard)
     COPY='termux-clipboard-set'
