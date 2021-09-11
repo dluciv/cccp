@@ -16,8 +16,12 @@ autodetect_backend () {
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
       echo wl-clipboard
-    else # consider this as fallback for Linux
+    elif [[ "$XDG_SESSION_TYPE" == "xorg" ]]; then
       echo xclip
+    else
+      # likely session type is "tty"
+      # sane approach is to symlink $XDG_CACHE_HOME/cccp.clip -> mcedit.clip wherever it is
+      echo clipfile
     fi
   elif [[ "$OSTYPE" == "linux-android"* ]]; then
     echo termux-clipboard
@@ -79,6 +83,11 @@ case $BACKEND in
   termux-clipboard)
     COPY='termux-clipboard-set'
     PASTE='termux-clipboard-get'
+  ;;
+  clipfile)
+    CH="${XDG_CACHE_HOME:-$HOME/.cache}"
+    COPY="cat >${CH}/cccp.clip"
+    PASTE="cat ${CH}/cccp.clip"
   ;;
   powershell)
     # Scripting for Windows is, as usual, a kind of feast.
