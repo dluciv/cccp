@@ -59,7 +59,7 @@ But the only way to manage it I saw was changing usual persistent terminal setti
 So using CCCP or not, use your terminal with care =).*
 
 OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
-To activate it, tune CCCP, as described above, setting `BACKEND=osc52`.
+To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because of above particularities, this backend is not autodetected.
 
 Also tune your local terminal (considering security note above). For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
