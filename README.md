@@ -39,6 +39,33 @@ Hacker notes =):
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 
+#### OSC 52
+
+Probably the most sane way to deal with clipboard on *remote* hosts is to bridge *local* (where the human is) clipboard to remote apps.
+And it is possible.
+
+**Security Note**
+
+*Clipboard sharing is, for example, supported by XWindows apps bridged through SSH for many years.
+Console apps can also access clipboard if your terminal supports and accepts
+[OSC 52 control sequences](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands).
+[Many terminals do](https://www.reddit.com/r/vim/comments/k1ydpn/a_guide_on_how_to_copy_text_from_anywhere/).
+XWindows apps are now rarely bridged via SSH, but SSHing to the remote shell is quite common.
+And that's why clipboard sharing can not be considered 100% safe: imagine yourself using SSH to log into some server with
+a sort of hacked shell or other malware running.
+If your terminal accepts OSC 52, then this server-side malware can insensibly read your client-side clipboard.
+In my opinion the most proper way to handle it is asking user, for example once per session, if (s)he wants to enable OSC 52.
+But the only way to manage it I saw was changing usual persistent terminal settings.
+So using CCCP or not, use your terminal with care =).*
+
+OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
+To activate it, tune CCCP, as described above, setting `BACKEND=osc52`.
+
+Also tune your local terminal (considering security note above). For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
+
+* Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`
+* Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`
+
 ## Name
 
 CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻 =).

@@ -55,16 +55,11 @@ psh_clip_paste() {
 }
 
 osc52_clip_copy() {
-  CLIP_TEXT=$(cat)
-  echo -ne "\033]52;c;"
-  echo $CLIP_TEXT | base64
-  echo -ne "\a"
+  "$(dirname $(realpath "$0"))/backends/osc52copy.py"
 }
 
 osc52_clip_paste() {
-    >&2 echo "Pasting via OSC 52 is not implemented yet"
-    echo
-    exit -1
+  "$(dirname $(realpath "$0"))/backends/osc52paste.py"
 }
 
 if [ -z "$CCCP_BACKEND" ]
@@ -109,7 +104,7 @@ case $BACKEND in
   ;;
   osc52)
     # Probably the most advanced and sane method for remote hosts.
-    # Not yet ready and anyway use it with care. Thus not autodetected.
+    # But not 100% safe. Thus not autodetected.
     COPY='osc52_clip_copy'
     PASTE='osc52_clip_paste'
   ;;
