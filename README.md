@@ -66,7 +66,7 @@ Also tune your local terminal (considering security note above). For example, my
 
 * Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`
 * Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`;
-  new options `read-clipboard-ask read-primary-ask` to ask user about paste will be
+  new options `read-primary-ask read-clipboard-ask` to ask user about paste will be
   [hopefully introduced soon](https://github.com/kovidgoyal/kitty/commit/b1322fbe04d31b5bf2f91ab2c03056664f9fe351).
 
 ## Name
