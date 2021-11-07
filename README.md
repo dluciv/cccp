@@ -36,7 +36,7 @@ BACKEND=wayland
 
 named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_CONFIG_HOME`).
 
-Hacker notes =):
+#### Hacker notes 🧔🏻�♂
 
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
