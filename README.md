@@ -11,6 +11,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 * `cccp c` reads `STDIN` and copies it to the clipboard
 * `cccp p` pastes from the clipboard to `STDOUT`
 * `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard
+* `cccp cf ...` (Copy File) copies `...` file contents to the clipboard
 
 ## Installation & Configuration
 
@@ -39,6 +40,7 @@ Hacker notes =):
 
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
+* Like Midnight Commander and its dummy editor? Then paste to it in ant way your terminal allows, and automatically translate its clipfile to the clipboard with `fswatch -0 $XDG_DATA_HOME/mc/mcedit/mcedit.clip | xargs -0 -n 1 cccp cf`
 
 #### OSC 52
 

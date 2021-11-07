@@ -4,10 +4,16 @@
 # set -x
 
 if [[ "$1" == "ac" ]]
-then # Arg copy
+then # Arg Copy
   CM=$0
   shift 1
   echo "$@" | $CM c
+  exit $?
+elif [[ "$1" == "cf" ]]
+then # Copy File
+  CM=$0
+  shift 1
+  cat "$@" | $CM c
   exit $?
 fi
 
