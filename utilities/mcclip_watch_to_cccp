@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+mcclip_cccp() {
+  fswatch -0 $XDG_DATA_HOME/mc/mcedit/mcedit.clip | xargs -0 -n 1 cccp cf
+}
+
+mcclip_cccp_start() {
+  PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
+  if [ -f $PIDFILE ]
+  then
+    cat $PIDFILE | xargs pkill -TERM -P
+    # cat $PIDFILE | xargs kill -TERM
+    rm $PIDFILE
+  fi
+  mcclip_cccp &
+  echo $! >$PIDFILE
+}
+
+mcclip_cccp_start
