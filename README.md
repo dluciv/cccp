@@ -40,7 +40,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
-* Like Midnight Commander and its dummy editor? Then paste to it in ant way your terminal allows, and automatically translate its clipfile to the clipboard with [`fswatch`](https://github.com/emcrisostomo/fswatch)` -0 $XDG_DATA_HOME/mc/mcedit/mcedit.clip | xargs -0 -n 1 cccp cf`
+* Like Midnight Commander and its dummy editor? Then paste to it in ant way your terminal allows, and automatically translate its clipfile to the clipboard with [FSWatch](https://github.com/emcrisostomo/fswatch): `fswatch -0 $XDG_DATA_HOME/mc/mcedit/mcedit.clip | xargs -0 -n 1 cccp cf`
 
 #### OSC 52
 
