@@ -1,19 +1,34 @@
 #!/usr/bin/env bash
 
+PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
+MCECLIP=$XDG_DATA_HOME/mc/mcedit/mcedit.clip
+
 mcclip_cccp() {
-  fswatch -0 $XDG_DATA_HOME/mc/mcedit/mcedit.clip | xargs -0 -n 1 cccp cf
+  fswatch -0 $MCECLIP | xargs -0 -n 1 cccp cf
 }
 
-mcclip_cccp_start() {
-  PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
+mcclip_cccp_stop() {
   if [ -f $PIDFILE ]
   then
     cat $PIDFILE | xargs pkill -TERM -P
-    # cat $PIDFILE | xargs kill -TERM
     rm $PIDFILE
   fi
-  mcclip_cccp &
+}
+
+mcclip_cccp_start() {
+  mcclip_cccp_stop
+  mcclip_cccp 1>/dev/null 2>&1 &
   echo $! >$PIDFILE
 }
 
-mcclip_cccp_start
+case "${1}" in
+  start|restart)
+    mcclip_cccp_start
+  ;;
+  stop)
+    mcclip_cccp_stop
+  ;;
+  *)
+    >&2 echo "Usage: ${0} {(re)start | stop}"
+  ;;
+esac
