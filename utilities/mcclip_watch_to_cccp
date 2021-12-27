@@ -4,7 +4,8 @@ PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
 MCECLIP=$XDG_DATA_HOME/mc/mcedit/mcedit.clip
 
 mcclip_cccp() {
-  fswatch -0 $MCECLIP | xargs -0 -n 1 cccp cf
+  # fswatch -0 $MCECLIP | xargs -0 -n 1 cccp cf
+  fswatch --event Updated $MCECLIP | xargs -L 1 cccp cf
 }
 
 mcclip_cccp_stop() {
