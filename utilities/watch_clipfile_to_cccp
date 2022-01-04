@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
+PIDFILE=$XDG_RUNTIME_DIR/clipfile_watch.pid
 
-mcclip_cccp() {
+clipfw_cccp() {
   fswatch --event Updated --latency 1 $1 | xargs -L 1 cccp cf
 }
 
-mcclip_cccp_stop() {
+clipfw_cccp_stop() {
   if [ -f $PIDFILE ]
   then
     cat $PIDFILE | xargs pkill -P
@@ -14,18 +14,18 @@ mcclip_cccp_stop() {
   fi
 }
 
-mcclip_cccp_start() {
-  mcclip_cccp_stop
-  mcclip_cccp $1 1>/dev/null 2>&1 &
+clipfw_cccp_start() {
+  clipfw_cccp_stop
+  clipfw_cccp $1 1>/dev/null 2>&1 &
   echo $! >$PIDFILE
 }
 
 case "${1}" in
   start|restart)
-    mcclip_cccp_start $2
+    clipfw_cccp_start $2
   ;;
   stop)
-    mcclip_cccp_stop
+    clipfw_cccp_stop
   ;;
   *)
     >&2 echo "Usage: ${0} {(re)start {clipfile} | stop}"
