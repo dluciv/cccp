@@ -61,7 +61,6 @@ And that's why clipboard sharing can not be considered 100% safe: imagine yourse
 a sort of hacked shell or other malware running.
 If your terminal accepts OSC 52, then this remote malware can insensibly read your local clipboard.
 In my opinion the most proper way to handle it is asking user, for example once per session, if (s)he wants to enable OSC 52.
-But the only way to manage it I saw was changing usual persistent terminal settings.
 So using CCCP or not, use your terminal with care =).*
 
 OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
@@ -70,9 +69,8 @@ To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because 
 Also tune your local terminal, considering security note above. For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
 * Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`
-* Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`;
-  new options `read-primary-ask read-clipboard-ask` to ask user about paste will be
-  [hopefully introduced soon](https://github.com/kovidgoyal/kitty/commit/b1322fbe04d31b5bf2f91ab2c03056664f9fe351).
+* Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`
+* The safer options (instead of above last two) `... read-primary-ask read-clipboard-ask` introduced in kitty [0.24.0](https://github.com/kovidgoyal/kitty/releases/tag/v0.24.0) to [ask user about paste](https://github.com/kovidgoyal/kitty/issues/4022).
 
 ## Name
 
