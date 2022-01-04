@@ -8,10 +8,10 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 ## Usage
 
-* `cccp c` reads `STDIN` and copies it to the clipboard
-* `cccp p` pastes from the clipboard to `STDOUT`
-* `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard
-* `cccp cf ...` (Copy File) copies `...` file contents to the clipboard
+* `cccp c` reads `STDIN` and copies it to the clipboard.
+* `cccp p` pastes from the clipboard to `STDOUT`.
+* `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard.
+* `cccp cf ...` (Copy File) copies `...` file contents to the clipboard.
 
 ## Installation & Configuration
 
@@ -38,7 +38,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 
 #### Hacker notes 🧔
 
-* You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
+* You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`.
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 * Fan of oldschool editors?
   * Like Midnight Commander and its built-in editor like I do? Find `$XDG_CONFIG_HOME/mc/ini` and edit two settings manually: set `clipboard_store=cccp cf` and 
@@ -68,8 +68,8 @@ To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because 
 
 Also tune your local terminal, considering security note above. For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
-* Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`
-* Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`
+* Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`.
+* Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`.
 * The safer options (instead of above last two) `... read-primary-ask read-clipboard-ask` introduced in kitty [0.24.0](https://github.com/kovidgoyal/kitty/releases/tag/v0.24.0) to [ask user about paste](https://github.com/kovidgoyal/kitty/issues/4022).
 
 ## Name
