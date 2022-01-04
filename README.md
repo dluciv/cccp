@@ -40,6 +40,10 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
+* Fan of oldschool editors?
+  * Like Midnight Commander and its build-in editor like I do? Find `$XDG_CONFIG_HOME/mc/ini` and edit two settings manually: set `clipboard_store=cccp cf` and 
+`clipboard_paste=cccp p`. Make sure MC will not owerwrite it (e.g. quit all MCs and use another editor =)).
+  * Like something other only using a clipfile? Then take a look at [`watch_clipfile_to_cccp`](utilities/watch_clipfile_to_cccp).
 
 #### OSC 52
 
