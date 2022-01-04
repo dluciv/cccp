@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 PIDFILE=$XDG_RUNTIME_DIR/mcclip.pid
-MCECLIP=$XDG_DATA_HOME/mc/mcedit/mcedit.clip
 
 mcclip_cccp() {
   fswatch --event Updated --latency 1 $1 | xargs -L 1 cccp cf
