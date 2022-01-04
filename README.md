@@ -36,7 +36,7 @@ BACKEND=wayland
 
 named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_CONFIG_HOME`).
 
-#### Hacker notes 🧔🏻‍♂
+#### Hacker notes 🧔
 
 * You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
@@ -61,9 +61,9 @@ But the only way to manage it I saw was changing usual persistent terminal setti
 So using CCCP or not, use your terminal with care =).*
 
 OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
-To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because of above particularities, this backend is not autodetected.
+To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because of above security issue, this backend is not autodetected.
 
-Also tune your local terminal (considering security note above). For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
+Also tune your local terminal, considering security note above. For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
 * Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`
 * Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`;
