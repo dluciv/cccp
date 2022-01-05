@@ -50,6 +50,8 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 Probably the most sane way to deal with clipboard on *remote* hosts is to bridge *local* (where the human is) clipboard to remote apps.
 And it is possible.
 
+*TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend `osc52c` (not `osc52`!)
+
 **Security Note**
 
 *Clipboard sharing is, for example, supported by XWindows apps bridged through SSH for many years.
@@ -75,7 +77,7 @@ To activate OSC 52, tune CCCP, as described above, setting `BACKEND=osc52`. Beca
 
 * `osc52` will try to copy and paste as usual.
 * `osc52c` will only copy and set non-zero exit status when trying to paste. Use your terminal pasting feature manually.
-  This option is safe but lame, thus also not autodetected =).
+  This option is safe but, only half-functional, thus also not autodetected. Nevertheless this is my personal option for headless servers =).
 
 ## Name
 

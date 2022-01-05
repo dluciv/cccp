@@ -115,9 +115,10 @@ case $BACKEND in
     PASTE='osc52_clip_paste'
   ;;
   osc52c)
-    # Same as above, but only copies to make is safe.
+    # Same as above, but only copies to keep it safe.
     # Paste manually using your terminal pasting feature.
-    # Also not autodetected.
+    # Also not autodetected, being only half-functional.
+    # But still this is my personal option for headless servers.
     COPY='osc52_clip_copy'
     PASTE='exit 1'
   ;;
