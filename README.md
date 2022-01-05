@@ -64,13 +64,18 @@ In my opinion the most proper way to handle it is asking user, for example once 
 So using CCCP or not, use your terminal with care =).*
 
 OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
-To activate it, tune CCCP, as described above, setting `BACKEND=osc52`. Because of above security issue, this backend is not autodetected.
 
 Also tune your local terminal, considering security note above. For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
 * Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`.
 * Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`.
 * The safer options (instead of above last two) `... read-primary-ask read-clipboard-ask` introduced in kitty [0.24.0](https://github.com/kovidgoyal/kitty/releases/tag/v0.24.0) to [ask user about paste](https://github.com/kovidgoyal/kitty/issues/4022).
+
+To activate OSC 52, tune CCCP, as described above, setting `BACKEND=osc52`. Because of above security issue, this backend is not autodetected.
+
+* `osc52` will try to copy and paste as usual.
+* `osc52c` will only copy and set non-zero exit status when trying to paste. Use your terminal pasting feature manually.
+  This option is safe but lame, thus also not autodetected =).
 
 ## Name
 
