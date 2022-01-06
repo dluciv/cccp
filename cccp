@@ -61,11 +61,11 @@ psh_clip_paste() {
 }
 
 osc52_clip_copy() {
-  "$(dirname $(realpath "$0"))/backends/osc52copy.py"
+  PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_copy()'
 }
 
 osc52_clip_paste() {
-  "$(dirname $(realpath "$0"))/backends/osc52paste.py"
+  PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_paste()'
 }
 
 if [ -z "$CCCP_BACKEND" ]
