@@ -26,7 +26,7 @@ CCCP is not a standalone tool. For the most platforms, it also depends on tools,
 * Windows — any Bash (Cygwin, MSYS, etc.) with `dos2unix` and PowerShell (now it is usually available out of the box).
 * Any Unix-like OS accessed remotely via SSH or Telnet – Python 3+ to interact with local clipboard via OSC 52 terminal sequences.
 
-To install helper backends, run `submodule update --init --recursive .` in repo directory.
+To install helper backends, run `git submodule update --init --recursive .` in repo directory.
 
 ### Configuration
 
