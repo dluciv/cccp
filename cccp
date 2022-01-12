@@ -61,7 +61,14 @@ psh_clip_paste() {
 }
 
 osc52_clip_internal_copy() {
-  printf "\033]52;c;$(cat | base64)\a"
+  OSC="\033]52;c;$(cat | base64)\a"
+
+  if "${BYPASS_TMUX:-false}" && [ -n "$TMUX" ]
+  then
+    printf "\033Ptmux;\033${OSC}\033\\"
+  else
+    printf "${OSC}"
+  fi
 }
 
 osc52_clip_copy() {
