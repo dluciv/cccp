@@ -61,7 +61,7 @@ psh_clip_paste() {
 }
 
 osc52_clip_internal_copy() {
-  printf "\033]52;c;$(cat | base64 -w 0)\a"
+  printf "\033]52;c;$(cat | base64)\a"
 }
 
 osc52_clip_copy() {
