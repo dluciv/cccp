@@ -60,6 +60,10 @@ psh_clip_paste() {
   rm $TMP_TXT
 }
 
+osc52_clip_internal_copy() {
+  printf "\033]52;c;$(cat | base64 -w 0)\a"
+}
+
 osc52_clip_copy() {
   PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_copy()'
 }
@@ -119,7 +123,7 @@ case $BACKEND in
     # Paste manually using your terminal pasting feature.
     # Also not autodetected, being only half-functional.
     # But still this is my personal option for headless servers.
-    COPY='osc52_clip_copy'
+    COPY='osc52_clip_internal_copy'
     PASTE='exit 1'
   ;;
   *)
