@@ -63,12 +63,15 @@ psh_clip_paste() {
 osc52_clip_internal_copy() {
   OSC="\033]52;c;$(cat | base64)\a"
 
-  if "${BYPASS_TMUX:-false}" && [ -n "$TMUX" ]
-  then
-    printf "\033Ptmux;\033${OSC}\033\\"
-  else
-    printf "${OSC}"
+  if "${BYPASS_TMUX:-false}"; then
+    if [ -n "$TMUX" ]; then
+      OSC=$(printf "\033Ptmux;\033${OSC}\033\\")
+    elif [ "$TERM" == "screen" ]; then
+      OSC=$(printf "\033P${OSC}\033\\")
+    fi
   fi
+
+  printf "${OSC}"
 }
 
 osc52_clip_copy() {

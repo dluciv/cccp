@@ -83,7 +83,8 @@ To activate OSC 52, tune CCCP, as described above, setting `BACKEND=osc52c` (rec
 * **`osc52c`** will only copy and set non-zero exit status when trying to paste. Use your terminal pasting feature manually.
   This option is safe but, only half-functional, thus also not autodetected. Nevertheless this is my personal favorite option for headless servers =).
   Another point of it is that is only uses shell built-ins + `base64` tool which is available almost everywhere.
-  Also keep in mind that you should add `BYPASS_TMUX=true` to your `cccp.conf` to allow it to copy through your tmux when needed. Previous one (`osc52`) allows it by default.
+  Also keep in mind that you should add `BYPASS_TMUX=true` to your `cccp.conf` to allow it to copy through your multiplexor (tmux and screen are supported) when needed.
+  Previous one (`osc52`) allows it by default.
 
 ## Name
 
