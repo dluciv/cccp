@@ -78,11 +78,13 @@ osc52_clip_copy() {
   # "${OSC52_BYPASS_MUX:-true}" && bypass_mux=True || bypass_mux=False
   # oscclip.osc52_copy(data: bytes, primary: bool, bypass_mux: True)
   # not yet supported, will always bypass muxes
-  PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_copy()'
+  OSCCLIP_PATH="$(dirname $(realpath "$0"))/backends/oscclip"
+  python3 -c "import sys; sys.path.append('${OSCCLIP_PATH}'); import oscclip; oscclip.osc_copy()"
 }
 
 osc52_clip_paste() {
-  PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_paste()'
+  OSCCLIP_PATH="$(dirname $(realpath "$0"))/backends/oscclip"
+  python3 -c "import sys; sys.path.append('${OSCCLIP_PATH}'); import oscclip; oscclip.osc_paste()"
 }
 
 if [[ -z "$CCCP_BACKEND" ]]
