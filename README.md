@@ -69,8 +69,6 @@ For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either
 * Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`.
 * The safer options (instead of above last two) `... read-primary-ask read-clipboard-ask` introduced in kitty [0.24.0](https://github.com/kovidgoyal/kitty/releases/tag/v0.24.0) to [ask user about paste](https://github.com/kovidgoyal/kitty/issues/4022).
 
-OSC 52 is supported in CCCP as follows with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
-
 **So What?**
 
 Above *TL;DR:* note is still relevant. If you want to go deeper, OSC 52 backend has 3 additional options which can be either tuned via environment or `cccp.conf`.
