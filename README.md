@@ -73,7 +73,7 @@ For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either
 
 Above *TL;DR:* note is still relevant. If you want to go deeper, OSC 52 backend has 3 additional options which can be either tuned via environment or `cccp.conf`.
 
-* `OSC52_ALLOW_PASTE=true|false`, default is `false`. When true, allows pasting. Use with care!
+* `OSC52_ALLOW_PASTE=false|true`, default is `false`. When true, allows pasting. Use with care!
 * `OSC52_SHELL_COPY=true|false`, default is `true`. CCCP actually uses two sub-backends for OSC 52:
   * Python module, which requires Python 3 to be installed, and allows the both copying and pasting;
   * built-in piece of shell code (enabled by default with this option) which is only capable of copying and
