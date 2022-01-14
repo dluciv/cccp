@@ -52,39 +52,37 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 #### OSC 52
 
 Probably the most sane way to deal with clipboard on *remote* hosts is to bridge *local* (where the human is) clipboard to remote apps.
-And it is possible.
+And it is possible. Activated with `BACKEND=osc52`, no autodetection available.
 
-*TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend `BACKEND=osc52c` (not `osc52`!)
+*TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend using just `BACKEND=osc52` with bo additional settings.
+This allows to copy, and you can paste yourself using your terminal menu, Ctrl+V, Cmd+V, Shift+Insert or any other way you used before.
 
 **Security Note**
 
-*Clipboard sharing is, for example, supported by XWindows apps bridged through SSH for many years.
-Console apps can also access clipboard if your terminal supports and accepts
-[OSC 52 control sequences](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands).
-[Many terminals do](https://www.reddit.com/r/vim/comments/k1ydpn/a_guide_on_how_to_copy_text_from_anywhere/).
-XWindows apps are now rarely bridged via SSH, but SSHing to the remote shell is quite common.
-And that's why clipboard sharing can not be considered 100% safe: imagine yourself using SSH to log into some server with
-a sort of hacked shell or other malware running.
-If your terminal accepts OSC 52, then this remote malware can insensibly read your local clipboard.
-In my opinion the most proper way to handle it is asking user, for example once per session, if (s)he wants to enable OSC 52.
-So using CCCP or not, use your terminal with care =).*
+Enabling pasting via OSC 52 allows **remote** software to read your **local** clipboard insensibly.
+It doesn't matter if you use CCCP at all or not, it is only related to your terminal settings.
+Thus make sure you only enable it on completely trusted servers.
 
-OSC 52 is supported in CCCP with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
-
-Also tune your local terminal, considering security note above. For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
+For example, my favorite [Kitty](https://sw.kovidgoyal.net/kitty/) can be either tuned via `kitty.conf` for:
 
 * Just copying from remote hosts: `clipboard_control write-primary write-clipboard no-append`.
 * Copying from and pasting to remote hosts: `clipboard_control write-primary write-clipboard no-append read-primary read-clipboard`.
 * The safer options (instead of above last two) `... read-primary-ask read-clipboard-ask` introduced in kitty [0.24.0](https://github.com/kovidgoyal/kitty/releases/tag/v0.24.0) to [ask user about paste](https://github.com/kovidgoyal/kitty/issues/4022).
 
-To activate OSC 52, tune CCCP, as described above, setting `BACKEND=osc52c` (recommended) or `BACKEND=osc52`. Because of above security issue, this backend is not autodetected.
+OSC 52 is supported in CCCP as follows with two helper scripts in Python 3 (thus requiring Python 3 to be installed).
 
-* `osc52` will try to copy and paste as usual.
-* **`osc52c`** will only copy and set non-zero exit status when trying to paste. Use your terminal pasting feature manually.
-  This option is safe but, only half-functional, thus also not autodetected. Nevertheless this is my personal favorite option for headless servers =).
-  Another point of it is that is only uses shell built-ins + `base64` tool which is available almost everywhere.
-  Also keep in mind that you should add `BYPASS_TMUX=true` to your `cccp.conf` to allow it to copy through your multiplexor (tmux and screen are supported) when needed.
-  Previous one (`osc52`) allows it by default.
+**So What?**
+
+Above *TL;DR:* note is still relevant. If you want to go deeper, OSC 52 backend has 3 additional options which can be either tuned via environment or `cccp.conf`.
+
+* `OSC52_ALLOW_PASTE=true|false`, default is `false`. When true, allows pasting. Use with care!
+* `OSC52_SHELL_COPY=true|false`, default is `true`. CCCP actually uses two sub-backends for OSC 52:
+  * Python module, which requires Python 3 to be installed, and allows the both copying and pasting;
+  * built-in piece of shell code (enabled by default with this option) which is only capable of copying and
+    is very portable because only depends on `base64` tool which available almost everywhere; to paste,
+    above Python module is used.
+* `OSC52_BYPASS_MUX=true|false`, default is `true`. When true, tells shell sub-backend to push copy operation
+  through terminal multiplexor. tmux and GNU Screen are supported. Python backend has this option always enabled.
 
 ## Name
 

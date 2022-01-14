@@ -63,10 +63,10 @@ psh_clip_paste() {
 osc52_clip_internal_copy() {
   OSC="\033]52;c;$(cat | base64)\a"
 
-  if "${BYPASS_TMUX:-false}"; then
-    if [ -n "$TMUX" ]; then
+  if "${OSC52_BYPASS_MUX:-true}"; then
+    if [[ -n "$TMUX" ]]; then
       OSC=$(printf "\033Ptmux;\033${OSC}\033\\")
-    elif [ "$TERM" == "screen" ]; then
+    elif [[ "$TERM" == "screen" ]]; then
       OSC=$(printf "\033P${OSC}\033\\")
     fi
   fi
@@ -75,6 +75,9 @@ osc52_clip_internal_copy() {
 }
 
 osc52_clip_copy() {
+  # "${OSC52_BYPASS_MUX:-true}" && bypass_mux=True || bypass_mux=False
+  # oscclip.osc52_copy(data: bytes, primary: bool, bypass_mux: True)
+  # not yet supported, will always bypass muxes
   PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_copy()'
 }
 
@@ -82,10 +85,10 @@ osc52_clip_paste() {
   PYTHONPATH="$(dirname $(realpath "$0"))/backends/oscclip" python3 -c 'import oscclip; oscclip.osc_paste()'
 }
 
-if [ -z "$CCCP_BACKEND" ]
+if [[ -z "$CCCP_BACKEND" ]]
 then # get if from config (preferred) of autodetect
   CH="${XDG_CONFIG_HOME:-$HOME/.config}"
-  if [ -r "$CH/cccp.conf" ]
+  if [[ -r "$CH/cccp.conf" ]]
   then
     . $CH/cccp.conf
   else
@@ -124,17 +127,9 @@ case $BACKEND in
   ;;
   osc52)
     # Probably the most advanced and sane method for remote hosts.
-    # But not 100% safe. Thus not autodetected.
-    COPY='osc52_clip_copy'
-    PASTE='osc52_clip_paste'
-  ;;
-  osc52c)
-    # Same as above, but only copies to keep it safe.
-    # Paste manually using your terminal pasting feature.
-    # Also not autodetected, being only half-functional.
-    # But still this is my personal option for headless servers.
-    COPY='osc52_clip_internal_copy'
-    PASTE='exit 1'
+    # But not 100% safe and not 100% stable. Thus not autodetected.
+    ${OSC52_SHELL_COPY:-true} && COPY='osc52_clip_internal_copy' || COPY='osc52_clip_copy'
+    ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='exit 1'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
