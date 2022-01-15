@@ -83,6 +83,7 @@ Above *TL;DR:* note is still relevant. If you want to go deeper, OSC 52 backend 
   through terminal multiplexor. tmux and GNU Screen are supported. Python backend has this option always enabled.
 
 You can use above sub-backend options even without specifying the backend, so that they will only be applied when `osc52` backend is autodetected.
+This is useful for hosts, which a logged on both locally and remotely: in my case, one of my laptops and (sic!) my mobile.
 
 ## Name
 
