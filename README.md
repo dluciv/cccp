@@ -52,7 +52,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 #### OSC 52
 
 Probably the most sane way to deal with clipboard on *remote* hosts is to bridge *local* (where the human is) clipboard to remote apps.
-And it is possible. Activated with `BACKEND=osc52`, no autodetection available.
+And it is possible. `BACKEND=osc52` is autodetected for SSH sessions with default safe options.
 
 *TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend using just `BACKEND=osc52` with bo additional settings.
 This allows to copy, and you can paste yourself using your terminal menu, Ctrl+V, Cmd+V, Shift+Insert or any other way you used before.

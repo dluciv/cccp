@@ -18,15 +18,17 @@ then # Copy File
 fi
 
 autodetect_backend () {
-  # Based on https://stackoverflow.com/a/8597411/539470
-  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
+  if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
+    echo osc52
+  # Detect by OS https://stackoverflow.com/a/8597411/539470
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
       echo wl-clipboard
     elif [[ "$XDG_SESSION_TYPE" == "xorg" ]]; then
       echo xclip
     else
-      # likely session type is "tty"
-      # sane approach is to symlink $XDG_CACHE_HOME/cccp.clip -> mcedit.clip wherever it is
+      # likely session type is raw "tty"
       echo clipfile
     fi
   elif [[ "$OSTYPE" == "linux-android"* ]]; then
@@ -44,7 +46,7 @@ autodetect_backend () {
   fi
 }
 
-psh_clip_copy () {
+psh_clip_copy() {
   TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
   cat >$TMP_TXT
   unix2dos -o -q $TMP_TXT
@@ -152,6 +154,7 @@ case $1 in
     echo '`cccp c` -- copy STDIN to clipboard'
     echo '`cccp p` -- paste clipboard to STDOUT'
     echo '`cccp ac whatever you want` -- copy `whatever you want` to clipboard'
+    echo "Current backend is: $BACKEND"
   ;;
   *)
     >&2 echo "Command '$1' not supported"
