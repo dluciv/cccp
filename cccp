@@ -154,6 +154,7 @@ case $1 in
     echo '`cccp c` -- copy STDIN to clipboard'
     echo '`cccp p` -- paste clipboard to STDOUT'
     echo '`cccp ac whatever you want` -- copy `whatever you want` to clipboard'
+    echo '`cccp cf file` -- copy `file` contents to clipboard'
     echo "Current backend is: $BACKEND"
   ;;
   *)
