@@ -82,6 +82,8 @@ Above *TL;DR:* note is still relevant. If you want to go deeper, OSC 52 backend 
 * `OSC52_BYPASS_MUX=true|false`, default is `true`. When true, tells shell sub-backend to push copy operation
   through terminal multiplexor. tmux and GNU Screen are supported. Python backend has this option always enabled.
 
+You can use above sub-backend options even without specifying the backend, so that they will only be applied when `osc52` backend is autodetected.
+
 ## Name
 
 CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻 =).

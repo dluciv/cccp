@@ -95,7 +95,9 @@ then # get if from config (preferred) of autodetect
   if [[ -r "$CH/cccp.conf" ]]
   then
     . $CH/cccp.conf
-  else
+  fi
+  if [[ -z "$CCCP_BACKEND" ]] # there can be config w/o backend
+  then
     BACKEND=$(autodetect_backend)
   fi
 else # or override
