@@ -3,6 +3,8 @@
 # debug
 # set -x
 
+# ===== Launch the tool with ac and cf options =====
+
 if [[ "$1" == "ac" ]]
 then # Arg Copy
   CM=$0
@@ -16,6 +18,8 @@ then # Copy File
   cat "$@" | $CM c
   exit $?
 fi
+
+# ===== Backend autodetection =====
 
 autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
@@ -45,6 +49,8 @@ autodetect_backend () {
     exit 1
   fi
 }
+
+# ===== Backend implementation functions =====
 
 psh_clip_copy() {
   TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
@@ -89,20 +95,25 @@ osc52_clip_paste() {
   python3 -c "import sys; sys.path.insert(0, '${OSCCLIP_PATH}'); import oscclip; oscclip.osc_paste()"
 }
 
-if [[ -z "$CCCP_BACKEND" ]]
-then # get if from config (preferred) of autodetect
-  CH="${XDG_CONFIG_HOME:-$HOME/.config}"
-  if [[ -r "$CH/cccp.conf" ]]
-  then
-    . $CH/cccp.conf
-  fi
-  if [[ -z "$BACKEND" ]] # there can be config w/o backend
-  then
-    BACKEND=$(autodetect_backend)
-  fi
-else # or override
+# ===== Configure backend and options =====
+
+# read config file
+CH="${XDG_CONFIG_HOME:-$HOME/.config}"
+if [[ -r "$CH/cccp.conf" ]]; then
+  . $CH/cccp.conf
+fi
+
+# if CCCP_BACKEND is set, override BACKEND
+if [[ -n "$CCCP_BACKEND" ]]; then # get if from config (preferred) of autodetect
   BACKEND=$CCCP_BACKEND
 fi
+
+# if BACKEND is still not set, autodetect it
+if [[ -z "$BACKEND" ]]; then
+  BACKEND=$(autodetect_backend)
+fi
+
+# ===== Apply configuration =====
 
 case $BACKEND in
   pbcopypaste)
@@ -135,13 +146,14 @@ case $BACKEND in
     # Probably the most advanced and sane method for remote hosts.
     # But not 100% safe and not 100% stable. Thus not autodetected.
     ${OSC52_SHELL_COPY:-true} && COPY='osc52_clip_internal_copy' || COPY='osc52_clip_copy'
-    ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='exit 1'
+    ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='>&2 echo Pasting via osc52 is not allowed by current configuration; exit 1'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
     exit 1
   ;;
 esac
+
 
 case $1 in
   c)
