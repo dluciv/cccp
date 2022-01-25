@@ -102,7 +102,7 @@ wl_copy_nohup() {
 }
 
 xclip_copy_nohup() {
-  # wl-copy should persist to own clipboard data
+  # xclip should persist to own clipboard data
   # but it should not occupy terminal
   cat | nohup xclip -selection clipboard -in &>/dev/null
 }
