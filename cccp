@@ -95,6 +95,18 @@ osc52_clip_paste() {
   python3 -c "import sys; sys.path.insert(0, '${OSCCLIP_PATH}'); import oscclip; oscclip.osc_paste()"
 }
 
+wl_copy_nohup() {
+  # wl-copy should persist to own clipboard data
+  # but it should not occupy terminal
+  cat | nohup wl-copy &>/dev/null
+}
+
+xclip_copy_nohup() {
+  # wl-copy should persist to own clipboard data
+  # but it should not occupy terminal
+  cat | nohup xclip -selection clipboard -in &>/dev/null
+}
+
 # ===== Configure backend and options =====
 
 # read config file
@@ -121,11 +133,11 @@ case $BACKEND in
     PASTE='pbpaste'
   ;;
   xclip)
-    COPY='xclip -selection clipboard -in'
+    COPY='xclip_copy_nohup'
     PASTE='xclip -selection clipboard -out'
   ;;
   wl-clipboard)
-    COPY='wl-copy'
+    COPY='wl_copy_nohup'
     PASTE='wl-paste -n'
   ;;
   termux-clipboard)
