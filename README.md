@@ -11,6 +11,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 * `cccp c` reads `STDIN` and copies it to the clipboard.
 * `cccp p` pastes from the clipboard to `STDOUT`.
 * `cccp ac ... ... ...` (Arg Copy) copies `... ... ...` to the clipboard.
+* `cccp ca ... ... ...` the same.
 * `cccp cf ...` (Copy File) copies `...` file contents to the clipboard.
 
 ## Installation & Configuration

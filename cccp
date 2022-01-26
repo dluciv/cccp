@@ -5,7 +5,7 @@
 
 # ===== Launch the tool with ac and cf options =====
 
-if [[ "$1" == "ac" ]]
+if [[ "$1" == "ac" || "$1" == "ca" ]]
 then # Arg Copy
   CM=$0
   shift 1
