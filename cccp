@@ -3,21 +3,6 @@
 # debug
 # set -x
 
-# ===== Launch the tool with ac and cf options =====
-
-if [[ "$1" == "ac" || "$1" == "ca" ]]
-then # Arg Copy
-  CM=$0
-  shift 1
-  echo "$@" | $CM c
-  exit $?
-elif [[ "$1" == "cf" ]]
-then # Copy File
-  CM=$0
-  shift 1
-  cat "$@" | $CM c
-  exit $?
-fi
 
 # ===== Backend autodetection =====
 
@@ -167,6 +152,8 @@ case $BACKEND in
 esac
 
 
+# ===== Launch the tool =====
+
 case $1 in
   c)
     eval $COPY
@@ -175,6 +162,14 @@ case $1 in
   p)
     eval $PASTE
     exit $?
+  ;;
+  ac|ca)
+    shift 1
+    echo "$@" | eval $COPY
+  ;;
+  cf)
+    shift 1
+    eval $COPY < "$@"
   ;;
   '')
     echo '`cccp c` -- copy STDIN to clipboard'
