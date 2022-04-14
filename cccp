@@ -24,7 +24,9 @@ autodetect_backend () {
     echo termux-clipboard
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo pbcopypaste
-  elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  elif [[ "$OSTYPE" == "cygwin" ]]; then
+    echo devclipboard
+  elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
     echo powershell
   elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo xclip
@@ -133,6 +135,11 @@ case $BACKEND in
     CH="${XDG_CACHE_HOME:-$HOME/.cache}"
     COPY="cat >${CH}/cccp.clip"
     PASTE="cat ${CH}/cccp.clip"
+  ;;
+  devclipboard)
+    # Scripting for Windows is, as usual, a kind of feast.
+    PASTE='cat /dev/clipboard'
+    COPY='cat >/dev/clipboard'
   ;;
   powershell)
     # Scripting for Windows is, as usual, a kind of feast.
