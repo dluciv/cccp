@@ -178,11 +178,16 @@ case $1 in
     shift 1
     eval $COPY < "$@"
   ;;
+  t)
+    eval $PASTE | eval $COPY
+    exit $?
+  ;;
   '')
     echo '`cccp c`                       -- copy STDIN to clipboard'
     echo '`cccp p`                       -- paste clipboard to STDOUT'
     echo '`cccp ca|ac whatever you want` -- copy `whatever you want` to clipboard'
     echo '`cccp cf|fc file`              -- copy `file` contents to clipboard'
+    echo '`cccp t`                       -- convert clipboard to plain text (cccp p | cccp c)'
     echo "Current backend is: $BACKEND"
   ;;
   *)

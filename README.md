@@ -14,6 +14,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
   * also `cccp ac ... ... ...` (Arg Copy)
 * `cccp cf ...` (Copy File) copies `...` file contents to the clipboard.
   * also `cccp fc ...` (File Copy)
+* `cccp t` (killer-feature!) converts clipboard to plain text, working as `cccp p | cccp c`.
 
 ## Installation & Configuration
 
