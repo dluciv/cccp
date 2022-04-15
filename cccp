@@ -24,9 +24,9 @@ autodetect_backend () {
     echo termux-clipboard
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo pbcopypaste
-  elif [[ "$OSTYPE" == "cygwin" ]]; then
+  elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
     echo devclipboard
-  elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+  elif [[ "$OSTYPE" == "win32" ]]; then
     echo powershell
   elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo xclip
