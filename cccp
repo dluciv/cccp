@@ -10,30 +10,50 @@ autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
   if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
     echo osc52
-  # Detect by OS https://stackoverflow.com/a/8597411/539470
-  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-      echo wl-clipboard
-    elif [[ "$XDG_SESSION_TYPE" == "xorg" ]]; then
-      echo xclip
-    else
-      # likely session type is raw "tty"
-      echo clipfile
-    fi
-  elif [[ "$OSTYPE" == "linux-android"* ]]; then
-    echo termux-clipboard
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    echo pbcopypaste
-  elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
-    echo devclipboard
-  elif [[ "$OSTYPE" == "win32" ]]; then
-    echo powershell
-  elif [[ "$OSTYPE" == "freebsd"* ]]; then
-    echo xclip
-  else
-    >&2 echo "No idea on backend for OSTYPE '$OSTYPE'"
-    echo
-    exit 1
+  else   # Non-SSH, detect by OS https://stackoverflow.com/a/8597411/539470
+    case "$OSTYPE" in
+      linux-gnu*|freebsd*)
+        if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+          if command -v wl-paste; then
+            echo wl-clipboard
+          else
+            >&2 echo "To use CCCP with Wayland, install wl-clipboard"
+            echo
+            exit 1
+          fi
+        elif [[ "$XDG_SESSION_TYPE" == "xorg" ]]; then
+          if command -v xclip; then
+            echo xclip
+          elif command -v xsel; then
+            echo xsel
+          else
+            >&2 echo "To use CCCP with X.org, install either xclip or xsel"
+            echo
+            exit 1
+          fi
+        else
+          # likely session type is raw "tty"
+          echo clipfile
+        fi
+      ;;
+      linux-android*)
+        echo termux-clipboard
+      ;;
+      darwin*)
+        echo pbcopypaste
+      ;;
+      cygwin*|msys*)
+        echo devclipboard
+      ;;
+      win32)
+        echo powershell
+      ;;
+      *)
+        >&2 echo "No idea on backend for OSTYPE '$OSTYPE'"
+        echo
+        exit 1
+      ;;
+    esac
   fi
 }
 
@@ -94,6 +114,12 @@ xclip_copy_nohup() {
   cat | nohup xclip -selection clipboard -in &>/dev/null
 }
 
+xsel_copy_nohup() {
+  # xsel should persist to own clipboard data
+  # but it should not occupy terminal
+  cat | nohup xsel --clipboard --input &>/dev/null
+}
+
 # ===== Configure backend and options =====
 
 # read config file
@@ -122,6 +148,10 @@ case $BACKEND in
   xclip)
     COPY='xclip_copy_nohup'
     PASTE='xclip -selection clipboard -out'
+  ;;
+  xsel)
+    COPY='xsel_copy_nohup'
+    PASTE='xsel --clipboard --output'
   ;;
   wl-clipboard)
     COPY='wl_copy_nohup'
