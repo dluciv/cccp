@@ -3,7 +3,6 @@
 # debug
 # set -x
 
-
 # ===== Backend autodetection =====
 
 autodetect_backend () {
@@ -14,20 +13,20 @@ autodetect_backend () {
     case "$OSTYPE" in
       linux-gnu*|freebsd*)
         if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-          if command -v wl-paste; then
+          if command -v wl-paste &>/dev/null; then
             echo wl-clipboard
           else
             >&2 echo "To use CCCP with Wayland, install wl-clipboard"
             echo
             exit 1
           fi
-        elif [[ "$XDG_SESSION_TYPE" == "xorg" ]]; then
-          if command -v xclip; then
-            echo xclip
-          elif command -v xsel; then
+        elif [[ "$XDG_SESSION_TYPE" == "xorg" || "$XDG_SESSION_TYPE" == "x11" ]]; then
+          if command -v xsel &>/dev/null; then
             echo xsel
+          elif command -v xclip &>/dev/null; then
+            echo xclip
           else
-            >&2 echo "To use CCCP with X.org, install either xclip or xsel"
+            >&2 echo "To use CCCP with Xorg, install either xclip or xsel"
             echo
             exit 1
           fi
@@ -114,12 +113,6 @@ xclip_copy_nohup() {
   cat | nohup xclip -selection clipboard -in &>/dev/null
 }
 
-xsel_copy_nohup() {
-  # xsel should persist to own clipboard data
-  # but it should not occupy terminal
-  cat | nohup xsel --clipboard --input &>/dev/null
-}
-
 # ===== Configure backend and options =====
 
 # read config file
@@ -145,13 +138,14 @@ case $BACKEND in
     COPY='pbcopy'
     PASTE='pbpaste'
   ;;
+  xsel)
+    # xsel detaches from tty itself
+    COPY='xsel --clipboard --input'
+    PASTE='xsel --clipboard --output'
+  ;;
   xclip)
     COPY='xclip_copy_nohup'
     PASTE='xclip -selection clipboard -out'
-  ;;
-  xsel)
-    COPY='xsel_copy_nohup'
-    PASTE='xsel --clipboard --output'
   ;;
   wl-clipboard)
     COPY='wl_copy_nohup'
