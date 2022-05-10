@@ -24,10 +24,10 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 CCCP is not a standalone tool. For the most platforms, it also depends on tools, which are not always installed by default:
 
-* Linux — `xclip` and/or `wl-clipboard`, depending on your environment.
+* Linux and FreeBSD running Xorg, X11 and Wayland — `xclip` and/or `wl-clipboard`, depending on your environment.
 * Android with Termux — [`termux-api` package](https://github.com/termux/termux-api-package) + [Termux:API](https://github.com/termux/termux-api)
 * Windows:
-  * CygWin and MSYS(2) (including Git Bash) using their own nice `/dev/clipboard` that requires nothing more;
+  * CygWin and MSYS(2) (including Git Bash) using their own nice `/dev/clipboard` that does not require anything more;
   * any other Windows Bash'es, with `dos2unix` installed and PowerShell (now it is usually available out of the box).
 * Any Unix-like OS accessed remotely via SSH or Telnet – Python 3+ to interact with local clipboard via OSC 52 terminal sequences.
 
@@ -49,7 +49,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 * Fan of oldschool editors?
   * Like Midnight Commander and its built-in editor as I do? Find `$XDG_CONFIG_HOME/mc/ini` and edit two settings manually: set `clipboard_store=cccp cf` and 
-`clipboard_paste=cccp p`. Make sure MC will not owerwrite it (e.g. quit all MCs and use another editor =)).
+`clipboard_paste=cccp p`. Make sure MC will not owerwrite it (e.g. quit all MCs and use another editor to edit MC's ini file =)).
   * Like Vi(m) as I do too? =) Then `vnoremap <C-F11> y:call system('cccp c', @")<CR>` or use any other shortcut and register you want.
     * *This does not work on remotes with OSC 52 (see below) likely because vim filters command output aggressively. Then use `vnoremap <C-F10> ::w !cccp c<CR><CR>` — it appears to work, but always copies the whole lines with selection. You can also try to give up on cccp and use [this plugin](https://github.com/fcpg/vim-osc52), but it did not copy in my case.*
   * Like something other only using a clipfile? Then take a look at [`watch_clipfile_to_cccp`](utilities/watch_clipfile_to_cccp).
@@ -57,9 +57,9 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 #### OSC 52
 
 Probably the most sane way to deal with clipboard on *remote* hosts is to bridge *local* (where the human is) clipboard to remote apps.
-And it is possible. `BACKEND=osc52` is autodetected for SSH sessions with default safe options.
+And it is available in CCCP: `BACKEND=osc52` is autodetected for SSH sessions with default safe options.
 
-*TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend using just `BACKEND=osc52` with bo additional settings.
+*TL;DR:* If your local and remote software works fine with it and you need a setting for your headless server, I recommend using just `BACKEND=osc52` with no additional settings.
 This allows to copy, and you can paste yourself using your terminal menu, Ctrl+V, Cmd+V, Shift+Insert or any other way you used before.
 
 **Security Note**
