@@ -161,7 +161,7 @@ case $BACKEND in
     PASTE="cat ${CH}/cccp.clip"
   ;;
   devclipboard)
-    # Scripting for Windows is, as usual, a kind of feast.
+    # CygWin and MSYS are pretty nice, compare it to powershell backend! =)
     PASTE='cat /dev/clipboard'
     COPY='cat >/dev/clipboard'
   ;;
