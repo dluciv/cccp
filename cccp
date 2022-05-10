@@ -9,32 +9,26 @@ autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
   if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
     echo osc52
+  elif [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+    if command -v wl-paste &>/dev/null; then
+      echo wl-clipboard
+    else
+      >&2 echo "To use CCCP with Wayland, install wl-clipboard"
+      echo
+      exit 1
+    fi
+  elif [[ "$XDG_SESSION_TYPE" == "xorg" ]] || [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+    if command -v xsel &>/dev/null; then
+      echo xsel
+    elif command -v xclip &>/dev/null; then
+      echo xclip
+    else
+      >&2 echo "To use CCCP with Xorg, install either xclip or xsel"
+      echo
+      exit 1
+    fi
   else   # Non-SSH, detect by OS https://stackoverflow.com/a/8597411/539470
     case "$OSTYPE" in
-      linux-gnu*|freebsd*)
-        if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-          if command -v wl-paste &>/dev/null; then
-            echo wl-clipboard
-          else
-            >&2 echo "To use CCCP with Wayland, install wl-clipboard"
-            echo
-            exit 1
-          fi
-        elif [[ "$XDG_SESSION_TYPE" == "xorg" || "$XDG_SESSION_TYPE" == "x11" ]]; then
-          if command -v xsel &>/dev/null; then
-            echo xsel
-          elif command -v xclip &>/dev/null; then
-            echo xclip
-          else
-            >&2 echo "To use CCCP with Xorg, install either xclip or xsel"
-            echo
-            exit 1
-          fi
-        else
-          # likely session type is raw "tty"
-          echo clipfile
-        fi
-      ;;
       linux-android*)
         echo termux-clipboard
       ;;
@@ -48,9 +42,8 @@ autodetect_backend () {
         echo powershell
       ;;
       *)
-        >&2 echo "No idea on backend for OSTYPE '$OSTYPE'"
-        echo
-        exit 1
+        # Fallback. Also on Linux when $XDG_SESSION_TYPE is likely raw "tty"
+        echo clipfile
       ;;
     esac
   fi
@@ -156,9 +149,10 @@ case $BACKEND in
     PASTE='termux-clipboard-get'
   ;;
   clipfile)
-    CH="${XDG_CACHE_HOME:-$HOME/.cache}"
-    COPY="cat >${CH}/cccp.clip"
-    PASTE="cat ${CH}/cccp.clip"
+    CF="${XDG_RUNTIME_DIR:-$HOME/.cache}"
+    mkdir -m 0700 -p $CF
+    COPY="cat >${CF}/cccp.clip"
+    PASTE="cat ${CF}/cccp.clip"
   ;;
   devclipboard)
     # CygWin and MSYS are pretty nice, compare it to powershell backend! =)
