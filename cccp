@@ -178,7 +178,7 @@ case $1 in
   ;;
   ac|ca)
     shift 1
-    echo "$@" | eval $COPY
+    echo -n "$@" | eval $COPY
   ;;
   fc|cf)
     shift 1
