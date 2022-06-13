@@ -164,6 +164,26 @@ case $BACKEND in
   ;;
 esac
 
+# ===== Upgrade self =====
+
+upgrade_self() {
+  SCRIPTPATH="$( cd -- "$(dirname "$(realpath "$0")")" >/dev/null 2>&1 ; pwd -P )"
+  pushd "${SCRIPTPATH}" >/dev/null
+  echo "Updading CCCP in $(pwd)..."
+  _rv=0
+  if git remote &>/dev/null; then
+    git stash &>/dev/null
+    git pull --verbose --all --tags --rebase
+    _rv=$?
+    git stash pop &>/dev/null
+  else
+    _rv=$?
+    echo "CCCP is likely not in Git with remotes"
+  fi
+  popd >/dev/null
+  return $_rv
+
+}
 
 # ===== Launch the tool =====
 
@@ -188,12 +208,16 @@ case $1 in
     eval $PASTE | eval $COPY
     exit $?
   ;;
+  u)
+    upgrade_self
+  ;;
   '')
     echo '`cccp c`                       -- copy STDIN to clipboard'
     echo '`cccp p`                       -- paste clipboard to STDOUT'
     echo '`cccp ca|ac whatever you want` -- copy `whatever you want` to clipboard'
     echo '`cccp cf|fc file`              -- copy `file` contents to clipboard'
     echo '`cccp t`                       -- convert clipboard to plain text (cccp p | cccp c)'
+    echo '`cccp u`                       -- upgrade self, if being in Git'
     echo "Current backend is: $BACKEND"
   ;;
   *)
