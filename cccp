@@ -29,6 +29,14 @@ autodetect_backend () {
       win32)
         echo powershell
       ;;
+      linux-gnu)
+        UNAMEA=$(uname -a)
+        if echo $UNAMEA | grep microsoft &>/dev/null && echo $UNAMEA | grep WSL &>/dev/null; then
+          echo wsl
+        else
+          echo clipfile
+        fi
+      ;;
       *)
         # Fallback. Also on Linux when $XDG_SESSION_TYPE is likely raw "tty"
         echo clipfile
@@ -40,6 +48,7 @@ autodetect_backend () {
 # ===== Backend implementation functions =====
 
 psh_clip_copy() {
+  TMP="${TMPDIR:-/tmp}"
   TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
   cat >$TMP_TXT
   unix2dos -o -q $TMP_TXT
@@ -48,11 +57,21 @@ psh_clip_copy() {
 }
 
 psh_clip_paste() {
+  TMP="${TMPDIR:-/tmp}"
   TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
   powershell.exe -noprofile -command "Get-Clipboard | Set-Content -Encoding utf8 -Path '$(cygpath -ma $TMP_TXT)'" >/dev/null
   dos2unix -o -q $TMP_TXT
   head -c -1 $TMP_TXT # Skip trailing newline
   rm $TMP_TXT
+}
+
+wsl_clip_copy() {
+  ( cat; echo ) | powershell.exe -noprofile -command '$Input | Set-Clipboard'
+  # `unix2dos -q` instead of `cat` not needed, powershell does it itself
+}
+
+wsl_clip_paste() {
+  powershell.exe -noprofile -command 'Get-Clipboard' | dos2unix -q
 }
 
 osc52_clip_internal_copy() {
@@ -151,6 +170,10 @@ case $BACKEND in
     # Scripting for Windows is, as usual, a kind of feast.
     PASTE='psh_clip_paste'
     COPY='psh_clip_copy'
+  ;;
+  wsl)
+    PASTE='wsl_clip_paste'
+    COPY='wsl_clip_copy'
   ;;
   osc52)
     # Probably the most advanced and sane method for remote hosts.
