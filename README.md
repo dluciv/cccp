@@ -27,8 +27,9 @@ CCCP is not a standalone tool. For the most platforms, it also depends on tools,
 * Linux and FreeBSD running Xorg, X11 and Wayland — `xclip` and/or `wl-clipboard`, depending on your environment.
 * Android with Termux — [`termux-api` package](https://github.com/termux/termux-api-package) + [Termux:API](https://github.com/termux/termux-api)
 * Windows:
-  * CygWin and MSYS(2) (including Git Bash) using their own nice `/dev/clipboard` that does not require anything more;
-  * any other Windows Bash'es, with `dos2unix` installed and PowerShell (now it is usually available out of the box).
+  * CygWin and MSYS(2) (including Git Bash), using their own nice `/dev/clipboard` that does not require anything more;
+  * WSL, using PowerShell and requiring `dos2unix` to be installed;
+  * any other Windows Bash'es, with above `dos2unix` and PowerShell.
 * Any Unix-like OS accessed remotely via SSH or Telnet – Python 3+ to interact with local clipboard via OSC 52 terminal sequences.
 
 To install helper backends, run `git submodule update --init --recursive .` in repo directory.

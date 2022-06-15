@@ -26,9 +26,6 @@ autodetect_backend () {
       cygwin*|msys*)
         echo devclipboard
       ;;
-      win32)
-        echo powershell
-      ;;
       linux-gnu)
         UNAMEA=$(uname -a)
         if echo $UNAMEA | grep microsoft &>/dev/null && echo $UNAMEA | grep WSL &>/dev/null; then
@@ -36,6 +33,10 @@ autodetect_backend () {
         else
           echo clipfile
         fi
+      ;;
+      win32)
+        # Will not likely happen
+        echo powershell
       ;;
       *)
         # Fallback. Also on Linux when $XDG_SESSION_TYPE is likely raw "tty"
@@ -47,26 +48,9 @@ autodetect_backend () {
 
 # ===== Backend implementation functions =====
 
-psh_clip_copy() {
-  TMP="${TMPDIR:-/tmp}"
-  TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
-  cat >$TMP_TXT
-  unix2dos -o -q $TMP_TXT
-  powershell.exe -noprofile -command "[IO.File]::ReadAllText('$(cygpath -ma $TMP_TXT)', (New-Object System.Text.UTF8Encoding \$False)) | Set-Clipboard"
-  rm $TMP_TXT
-}
-
-psh_clip_paste() {
-  TMP="${TMPDIR:-/tmp}"
-  TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
-  powershell.exe -noprofile -command "Get-Clipboard | Set-Content -Encoding utf8 -Path '$(cygpath -ma $TMP_TXT)'" >/dev/null
-  dos2unix -o -q $TMP_TXT
-  head -c -1 $TMP_TXT # Skip trailing newline
-  rm $TMP_TXT
-}
-
 wsl_clip_copy() {
   ( cat; echo ) | powershell.exe -noprofile -command '$Input | Set-Clipboard'
+  # powershell trims newline at the end, why?..
   # `unix2dos -q` instead of `cat` not needed, powershell does it itself
 }
 
@@ -111,6 +95,27 @@ xclip_copy_nohup() {
   # xclip should persist to own clipboard data
   # but it should not occupy terminal
   cat | nohup xclip -selection clipboard -in &>/dev/null
+}
+
+# -- Two ugly functions for Windows other than Cygwin, MSYS or WSL. --
+# -- Scripting for Windows is, as usual, a kind of feast... --
+
+psh_clip_copy() {
+  TMP="${TMPDIR:-/tmp}"
+  TMP_TXT=$(mktemp -p $TMP copy_XXXXXX.txt)
+  cat >$TMP_TXT
+  unix2dos -o -q $TMP_TXT
+  powershell.exe -noprofile -command "[IO.File]::ReadAllText('$(cygpath -ma $TMP_TXT)', (New-Object System.Text.UTF8Encoding \$False)) | Set-Clipboard"
+  rm $TMP_TXT
+}
+
+psh_clip_paste() {
+  TMP="${TMPDIR:-/tmp}"
+  TMP_TXT=$(mktemp -p $TMP paste_XXXXXX.txt)
+  powershell.exe -noprofile -command "Get-Clipboard | Set-Content -Encoding utf8 -Path '$(cygpath -ma $TMP_TXT)'" >/dev/null
+  dos2unix -o -q $TMP_TXT
+  head -c -1 $TMP_TXT # Skip trailing newline
+  rm $TMP_TXT
 }
 
 # ===== Configure backend and options =====
@@ -166,11 +171,6 @@ case $BACKEND in
     PASTE='cat /dev/clipboard'
     COPY='cat >/dev/clipboard'
   ;;
-  powershell)
-    # Scripting for Windows is, as usual, a kind of feast.
-    PASTE='psh_clip_paste'
-    COPY='psh_clip_copy'
-  ;;
   wsl)
     PASTE='wsl_clip_paste'
     COPY='wsl_clip_copy'
@@ -180,6 +180,10 @@ case $BACKEND in
     # But not 100% safe and not 100% stable. Thus not autodetected.
     ${OSC52_SHELL_COPY:-true} && COPY='osc52_clip_internal_copy' || COPY='osc52_clip_copy'
     ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='>&2 echo Pasting via osc52 is not allowed by current configuration; exit 1'
+  ;;
+  powershell)
+    PASTE='psh_clip_paste'
+    COPY='psh_clip_copy'
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
