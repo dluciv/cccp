@@ -8,13 +8,17 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 ## Usage
 
-* `cccp c` reads `STDIN` and copies it to the clipboard.
-* `cccp p` pastes from the clipboard to `STDOUT`.
-* `cccp ca ... ... ...` (Copy Args) copies `... ... ...` to the clipboard.
-  * also `cccp ac ... ... ...` (Arg Copy)
-* `cccp cf ...` (Copy File) copies `...` file contents to the clipboard.
-  * also `cccp fc ...` (File Copy)
-* `cccp t` (killer-feature!) converts clipboard to plain text, working as `cccp p | cccp c`.
+* `cccp [switches] c` reads `STDIN` and copies it to the clipboard.
+* `cccp [switches] p` pastes from the clipboard to `STDOUT`.
+* `cccp [switches] ca ... ... ...` (Copy Args) copies `... ... ...` to the clipboard.
+  * also `cccp [switches] ac ... ... ...` (Arg Copy)
+* `cccp [switches] cf ...` (Copy File) copies `...` file contents to the clipboard.
+  * also `cccp [switches] fc ...` (File Copy)
+* `cccp [switches] t` (killer-feature!) converts clipboard to plain text, working as `cccp p | cccp c`.
+
+### Switches
+* `-p` or `--primary` work with primary selection for backends supporting it (and get error for others).
+* `-c` or `--clipboard` work with clipboard (default for backends currently supported).
 
 ## Installation & Configuration
 

@@ -88,13 +88,13 @@ osc52_clip_paste() {
 wl_copy_nohup() {
   # wl-copy should persist to own clipboard data
   # but it should not occupy terminal
-  cat | nohup wl-copy &>/dev/null
+  cat | nohup wl-copy $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
 }
 
 xclip_copy_nohup() {
   # xclip should persist to own clipboard data
   # but it should not occupy terminal
-  cat | nohup xclip -selection clipboard -in &>/dev/null
+  cat | nohup xclip -selection $BUFFER -in &>/dev/null
 }
 
 # -- Two ugly functions for Windows other than Cygwin, MSYS or WSL. --
@@ -136,31 +136,71 @@ if [[ -z "$BACKEND" ]]; then
   BACKEND=$(autodetect_backend)
 fi
 
+# ===== Take switches into account =====
+
+BUFFER=default
+
+while [[ $1 =~ ^--?[a-z0-9]+.*$ ]]; do
+  key=$1
+  shift
+  case $key in
+    -c|--clipboard)
+      BUFFER=clipboard
+    ;;
+    -p|--primary)
+      BUFFER=primary
+    ;;
+    *)
+      >&2 echo "Can't interpret switch '$key'"
+      exit 1
+    ;;
+  esac
+done
+
 # ===== Apply configuration =====
+
+no_primary () {
+  if [[ $BUFFER == 'primary' ]]; then
+    >&2 echo "$BUFFER buffer is not supported by $BACKEND backend"
+    exit 1
+  fi
+}
+
+default_clipboard () {
+  if [[ $BUFFER == 'default' ]]; then
+    BUFFER='clipboard'
+  fi
+}
 
 case $BACKEND in
   pbcopypaste)
+    no_primary
     COPY='pbcopy'
     PASTE='pbpaste'
   ;;
   xsel)
     # xsel detaches from tty itself
-    COPY='xsel --clipboard --input'
-    PASTE='xsel --clipboard --output'
+    default_clipboard
+    COPY="xsel --$BUFFER --input"
+    PASTE="xsel --$BUFFER --output"
   ;;
   xclip)
+    default_clipboard
     COPY='xclip_copy_nohup'
-    PASTE='xclip -selection clipboard -out'
+    PASTE="xclip -selection $BUFFER -out"
   ;;
   wl-clipboard)
+    default_clipboard
     COPY='wl_copy_nohup'
-    PASTE='wl-paste -n'
+    PASTE='wl-paste $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n'
   ;;
   termux-clipboard)
+    no_primary
     COPY='termux-clipboard-set'
     PASTE='termux-clipboard-get'
   ;;
   clipfile)
+    no_primary
     CF="${XDG_RUNTIME_DIR:-$HOME/.cache}"
     mkdir -m 0700 -p $CF
     COPY="cat >${CF}/cccp.clip"
@@ -168,20 +208,24 @@ case $BACKEND in
   ;;
   devclipboard)
     # CygWin and MSYS are pretty nice, compare it to powershell backend! =)
+    no_primary
     PASTE='cat /dev/clipboard'
     COPY='cat >/dev/clipboard'
   ;;
   wsl)
+    no_primary
     PASTE='wsl_clip_paste'
     COPY='wsl_clip_copy'
   ;;
   osc52)
     # Probably the most advanced and sane method for remote hosts.
     # But not 100% safe and not 100% stable. Thus not autodetected.
+    no_primary
     ${OSC52_SHELL_COPY:-true} && COPY='osc52_clip_internal_copy' || COPY='osc52_clip_copy'
     ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='>&2 echo Pasting via osc52 is not allowed by current configuration; exit 1'
   ;;
   powershell)
+    no_primary
     PASTE='psh_clip_paste'
     COPY='psh_clip_copy'
   ;;
@@ -242,14 +286,14 @@ case $1 in
     echo $BACKEND
   ;;
   '')
-    echo '`cccp c`                       -- copy STDIN to clipboard'
-    echo '`cccp p`                       -- paste clipboard to STDOUT'
-    echo '`cccp ca|ac whatever you want` -- copy `whatever you want` to clipboard'
-    echo '`cccp cf|fc file`              -- copy `file` contents to clipboard'
-    echo '`cccp t`                       -- convert clipboard to plain text (cccp p | cccp c)'
-    echo '`cccp u`                       -- upgrade self, if being in Git'
-    echo '`cccp b`                       -- print current backend'
-    echo "Current backend is: $BACKEND"
+    echo '`cccp [switches] c`                       -- copy STDIN to clipboard'
+    echo '`cccp [switches] p`                       -- paste clipboard to STDOUT'
+    echo '`cccp [switches] ca|ac whatever you want` -- copy `whatever you want` to clipboard'
+    echo '`cccp [switches] cf|fc file`              -- copy `file` contents to clipboard'
+    echo '`cccp [switches] t`                       -- convert clipboard to plain text (cccp p | cccp c)'
+    echo '`cccp u`                                  -- upgrade self, if being in Git'
+    echo '`cccp b`                                  -- print current backend'
+    echo "Current backend is: $BACKEND, current buffer is $BUFFER"
   ;;
   *)
     >&2 echo "Command '$1' not supported"
