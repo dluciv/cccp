@@ -293,7 +293,7 @@ case $1 in
     echo '`cccp [switches] t`                       -- convert clipboard to plain text (cccp p | cccp c)'
     echo '`cccp u`                                  -- upgrade self, if being in Git'
     echo '`cccp b`                                  -- print current backend'
-    echo "Current backend is: $BACKEND, current buffer is $BUFFER"
+    echo "Current backend is $BACKEND, default buffer is $BUFFER"
   ;;
   *)
     >&2 echo "Command '$1' not supported"
