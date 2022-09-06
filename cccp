@@ -159,17 +159,18 @@ done
 
 # ===== Apply configuration =====
 
+default_clipboard () {
+  if [[ $BUFFER == 'default' ]]; then
+    BUFFER='clipboard'
+  fi
+}
+
 no_primary () {
   if [[ $BUFFER == 'primary' ]]; then
     >&2 echo "$BUFFER buffer is not supported by $BACKEND backend"
     exit 1
   fi
-}
-
-default_clipboard () {
-  if [[ $BUFFER == 'default' ]]; then
-    BUFFER='clipboard'
-  fi
+  default_clipboard
 }
 
 case $BACKEND in
