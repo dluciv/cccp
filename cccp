@@ -119,9 +119,9 @@ psh_clip_paste() {
 }
 
 append_via_copypaste() {
-  CCS=$(eval $PASTE)
+  CCS=$(eval $PASTE; echo EOI)
   ACS=$(cat)
-  eval $COPY <<<"${CCS}${ACS}"
+  eval $COPY <<<"${CCS%EOI}${ACS}"
 }
 
 # ===== Configure backend and options =====
