@@ -118,6 +118,12 @@ psh_clip_paste() {
   rm $TMP_TXT
 }
 
+append_via_copypaste() {
+  CCS=$(eval $PASTE)
+  ACS=$(cat)
+  eval $COPY <<<"${CCS}${ACS}"
+}
+
 # ===== Configure backend and options =====
 
 # read config file
@@ -139,6 +145,7 @@ fi
 # ===== Take switches into account =====
 
 BUFFER=default
+DOAPPEND=false
 
 while [[ $1 =~ ^--?[a-z0-9]+.*$ ]]; do
   key=$1
@@ -149,6 +156,12 @@ while [[ $1 =~ ^--?[a-z0-9]+.*$ ]]; do
     ;;
     -p|--primary)
       BUFFER=primary
+    ;;
+    -r|--replace)
+      DOAPPEND=false
+    ;;
+    -a|--append)
+      DOAPPEND=true
     ;;
     *)
       >&2 echo "Can't interpret switch '$key'"
@@ -184,21 +197,25 @@ case $BACKEND in
     default_clipboard
     COPY="xsel --$BUFFER --input"
     PASTE="xsel --$BUFFER --output"
+    APPEND="xsel --$BUFFER --append"
   ;;
   xclip)
     default_clipboard
     COPY='xclip_copy_nohup'
     PASTE="xclip -selection $BUFFER -out"
+    APPEND=append_via_copypaste
   ;;
   wl-clipboard)
     default_clipboard
     COPY='wl_copy_nohup'
     PASTE='wl-paste $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n'
+    APPEND=append_via_copypaste
   ;;
   termux-clipboard)
     no_primary
     COPY='termux-clipboard-set'
     PASTE='termux-clipboard-get'
+    APPEND=append_via_copypaste
   ;;
   clipfile)
     no_primary
@@ -206,17 +223,20 @@ case $BACKEND in
     mkdir -m 0700 -p $CF
     COPY="cat >${CF}/cccp.clip"
     PASTE="cat ${CF}/cccp.clip"
+    APPEND="cat >>${CF}/cccp.clip"
   ;;
   devclipboard)
     # CygWin and MSYS are pretty nice, compare it to powershell backend! =)
     no_primary
     PASTE='cat /dev/clipboard'
     COPY='cat >/dev/clipboard'
+    APPEND=append_via_copypaste
   ;;
   wsl)
     no_primary
     PASTE='wsl_clip_paste'
     COPY='wsl_clip_copy'
+    APPEND=append_via_copypaste
   ;;
   osc52)
     # Probably the most advanced and sane method for remote hosts.
@@ -224,11 +244,13 @@ case $BACKEND in
     no_primary
     ${OSC52_SHELL_COPY:-true} && COPY='osc52_clip_internal_copy' || COPY='osc52_clip_copy'
     ${OSC52_ALLOW_PASTE:-false} && PASTE='osc52_clip_paste' || PASTE='>&2 echo Pasting via osc52 is not allowed by current configuration; exit 1'
+    APPEND=append_via_copypaste
   ;;
   powershell)
     no_primary
     PASTE='psh_clip_paste'
     COPY='psh_clip_copy'
+    APPEND=append_via_copypaste
   ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
@@ -254,14 +276,19 @@ upgrade_self() {
   fi
   popd >/dev/null
   return $_rv
-
 }
 
 # ===== Launch the tool =====
 
+if $DOAPPEND; then
+  COPY_OR_APPEND=$APPEND
+else
+  COPY_OR_APPEND=$COPY
+fi
+
 case $1 in
   c)
-    eval $COPY
+    eval $COPY_OR_APPEND
     exit $?
   ;;
   p)
@@ -270,14 +297,14 @@ case $1 in
   ;;
   ac|ca)
     shift 1
-    echo -n "$@" | eval $COPY
+    echo -n "$@" | eval $COPY_OR_APPEND
   ;;
   fc|cf)
     shift 1
-    eval $COPY < "$@"
+    eval $COPY_OR_APPEND < "$@"
   ;;
   t)
-    eval $PASTE | eval $COPY
+    eval $PASTE | eval $COPY_OR_APPEND
     exit $?
   ;;
   u)
@@ -294,6 +321,7 @@ case $1 in
     echo '`cccp [switches] t`                       -- convert clipboard to plain text (cccp p | cccp c)'
     echo '`cccp u`                                  -- upgrade self, if being in Git'
     echo '`cccp b`                                  -- print current backend'
+    echo 'Switches: -p|--primary -- use primary selection; -a|--append -- append to clipboard when copying'
     echo "Current backend is $BACKEND, default buffer is $BUFFER"
   ;;
   *)
