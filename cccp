@@ -297,7 +297,7 @@ case $1 in
   ;;
   ac|ca)
     shift 1
-    printf "%s" "$@" | eval $COPY_OR_APPEND
+    printf "%s" "$*" | eval $COPY_OR_APPEND
   ;;
   fc|cf)
     shift 1
