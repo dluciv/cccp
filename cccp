@@ -119,9 +119,9 @@ psh_clip_paste() {
 }
 
 append_via_copypaste() {
-  CCS=$(eval $PASTE; echo EOI)
-  ACS=$(cat)
-  eval $COPY <<<"${CCS%EOI}${ACS}"
+  CCS=$(eval $PASTE; printf "EOI")
+  ACS=$(cat; printf "EOI")
+  printf "%s" "${CCS%EOI}${ACS%EOI}" | eval $COPY
 }
 
 # ===== Configure backend and options =====
@@ -297,7 +297,7 @@ case $1 in
   ;;
   ac|ca)
     shift 1
-    echo -n "$@" | eval $COPY_OR_APPEND
+    printf "%s" "$@" | eval $COPY_OR_APPEND
   ;;
   fc|cf)
     shift 1
