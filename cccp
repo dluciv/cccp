@@ -24,7 +24,13 @@ autodetect_backend () {
         echo pbcopypaste
       ;;
       cygwin*|msys*)
-        echo devclipboard
+        if command -v putclip &>/dev/null; then
+          # Cygwin cygutils-extra or MSYS2 cygutils are preferred when available
+          # because putclip accepts empty input correctly
+          echo cygutils
+        else
+          echo devclipboard
+        fi
       ;;
       linux-gnu)
         UNAMEA=$(uname -a)
@@ -225,8 +231,15 @@ case $BACKEND in
     PASTE="cat ${CF}/cccp.clip"
     APPEND="cat >>${CF}/cccp.clip"
   ;;
+  cygutils)
+    # Cygwin and MSYS are pretty nice, compare it to powershell backend! =)
+    no_primary
+    PASTE='getclip'
+    COPY='putclip'
+    APPEND=append_via_copypaste
+  ;;
   devclipboard)
-    # CygWin and MSYS are pretty nice, compare it to powershell backend! =)
+    # Again, Cygwin and MSYS are pretty nice =)
     no_primary
     PASTE='cat /dev/clipboard'
     COPY='cat >/dev/clipboard'
