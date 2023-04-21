@@ -285,7 +285,12 @@ upgrade_self() {
     git stash pop &>/dev/null
   else
     _rv=$?
-    echo "CCCP is likely not in Git with remotes"
+    echo "CCCP is likely not in Git with remotes, trying CURL"
+    # Not portable (stuck to GitHub), but better than nothing...
+    if ! curl 'https://raw.githubusercontent.com/dluciv/cccp/main/cccp' >$(realpath "$0"); then
+      >&2 echo "Failed to update via both Git and CURL"
+      exit 1
+    fi
   fi
   popd >/dev/null
   return $_rv
