@@ -265,6 +265,15 @@ case $BACKEND in
     COPY='psh_clip_copy'
     APPEND=append_via_copypaste
   ;;
+  kitty)
+    # Suggestion for kitty.conf
+    # clipboard_control write-primary write-clipboard no-append read-primary-ask read-clipboard-ask
+    default_clipboard
+    [[ "$BUFFER" == "primary" ]] && KITTY_BUF_OPTION='--use-primary'
+    COPY="kitty +kitten clipboard ${KITTY_BUF_OPTION} --wait-for-completion"
+    PASTE="kitty +kitten clipboard ${KITTY_BUF_OPTION} --get-clipboard"
+    APPEND=append_via_copypaste
+  ;;
   *)
     >&2 echo "Backend '$BACKEND' not supported"
     exit 1
