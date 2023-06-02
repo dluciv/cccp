@@ -331,7 +331,12 @@ case $1 in
     eval $COPY_OR_APPEND < "$@"
   ;;
   t)
-    eval $PASTE | eval $COPY_OR_APPEND
+    if [[ $BACKEND == 'termux-clipboard' ]]; then
+      # termux workaround
+      eval $COPY_OR_APPEND <<< $(eval $PASTE)
+    else
+      eval $PASTE | eval $COPY_OR_APPEND
+    fi
     exit $?
   ;;
   u)
