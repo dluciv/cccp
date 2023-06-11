@@ -15,6 +15,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 * `cccp [switches] cf ...` (Copy File) copies `...` file contents to the clipboard.
   * also `cccp [switches] fc ...` (File Copy)
 * `cccp [switches] t` (killer-feature!) converts clipboard to plain text, working as `cccp p | cccp c`.
+* `cccp u` tries to update itself
 
 ### Switches
 * `-p` or `--primary` work with primary selection for backends supporting it (and get error for others).
