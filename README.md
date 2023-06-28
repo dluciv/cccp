@@ -21,7 +21,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 ### Switches
 * `-p` or `--primary` work with primary selection for backends supporting it (and get error for others).
 * `-c` or `--clipboard` work with clipboard (default for backends currently supported).
-* `-a` or `--append` append to the end of clipboard (experimental).
+* `-a` or `--append` append to the end of clipboard (experimental, for the most backends, just copies input to the end of paste).
 
 ## Installation & Configuration
 
