@@ -1,4 +1,4 @@
-name: 'CCCP on push'
+name: 'ShellCheck'
 on: [push]
 jobs:
   lint:
