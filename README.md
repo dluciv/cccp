@@ -1,6 +1,6 @@
 # CCCP
 
-![Shell Check](./actions/workflows/shellcheck.yml/badge.svg)
+![Shell Check](https://github.com/dluciv/cccp/actions/workflows/shellcheck.yml/badge.svg)
 
 Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and different alternatives to access clipboard.
 CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
