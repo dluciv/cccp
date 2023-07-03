@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2016 # We know when to use single or double quotes =)
+# shellcheck disable=SC2016,SC2164,SC2174
+# We know:
+#   - SC2016 when to use single or double quotes,
+#   - SC2174 what mode we do want,
+#   - SC2164 where to pushd so it should not fail =)
 
-# debug
+# To debug, uncomment
 # set -x
 
 # ===== Backend autodetection =====
@@ -71,13 +75,13 @@ osc52_clip_internal_copy() {
 
   if "${OSC52_BYPASS_MUX:-true}"; then
     if [[ -n "$TMUX" ]]; then
-      OSC=$(printf "\033Ptmux;\033${OSC}\033\\")
+      OSC=$(printf "\033Ptmux;\033%s\033\\" "$OSC")
     elif [[ "$TERM" =~ ^screen((-|\.).+)?$ ]]; then
-      OSC=$(printf "\033P${OSC}\033\\")
+      OSC=$(printf "\033P%s\033\\" "$OSC")
     fi
   fi
 
-  printf "${OSC}"
+  printf "%s" "$OSC"
 }
 
 osc52_clip_copy() {
@@ -138,6 +142,7 @@ append_via_copypaste() {
 # read config file
 CH="${XDG_CONFIG_HOME:-$HOME/.config}"
 if [[ -r "$CH/cccp.conf" ]]; then
+  # shellcheck disable=SC1091
   . "$CH/cccp.conf"
 fi
 
@@ -230,7 +235,6 @@ case $BACKEND in
   clipfile)
     no_primary
     CF="${XDG_RUNTIME_DIR:-$HOME/.cache}"
-    # shellcheck disable=SC2086
     mkdir -m 0700 -p "$CF"
     COPY="cat >${CF}/cccp.clip"
     PASTE="cat ${CF}/cccp.clip"
@@ -338,7 +342,7 @@ case $1 in
   t)
     if [[ $BACKEND == 'termux-clipboard' ]]; then
       # termux workaround
-      eval "$COPY_OR_APPEND" <<< $(eval "$PASTE")
+      eval "$COPY_OR_APPEND" <<< "$(eval "$PASTE")"
     else
       eval "$PASTE" | eval "$COPY_OR_APPEND"
     fi
@@ -348,7 +352,7 @@ case $1 in
     upgrade_self
   ;;
   b)
-    echo $BACKEND
+    echo "$BACKEND"
   ;;
   '')
     echo '`cccp [switches] c`                       -- copy STDIN to clipboard'
