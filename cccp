@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# shell-check disable=SC2016,SC2164,SC2174
+# shellcheck disable=SC2016,SC2164,SC2174
 # We know:
 #   - SC2016 when to use single or double quotes,
 #   - SC2174 what mode we do want,
