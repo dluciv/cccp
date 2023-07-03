@@ -70,20 +70,18 @@ wsl_clip_paste() {
   powershell.exe -noprofile -command 'Get-Clipboard' | dos2unix -q
 }
 
-# shellcheck disable=SC2059 # No, printf %s substitution will not work here
 osc52_clip_internal_copy() {
-
   OSC="\033]52;c;$(cat | base64)\a"
 
   if "${OSC52_BYPASS_MUX:-true}"; then
     if [[ -n "$TMUX" ]]; then
-      OSC=$(printf "\033Ptmux;\033${OSC}\033\\")
+      OSC=$(printf "\033Ptmux;\033%b\033\\" "$OSC")
     elif [[ "$TERM" =~ ^screen((-|\.).+)?$ ]]; then
-      OSC=$(printf "\033P${OSC}\033\\")
+      OSC=$(printf "\033P%b\033\\" "$OSC")
     fi
   fi
 
-  printf "${OSC}"
+  printf '%b' "$OSC"
 }
 
 osc52_clip_copy() {
