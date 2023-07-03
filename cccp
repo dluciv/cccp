@@ -75,13 +75,13 @@ osc52_clip_internal_copy() {
 
   if "${OSC52_BYPASS_MUX:-true}"; then
     if [[ -n "$TMUX" ]]; then
-      OSC=$(printf "\033Ptmux;\033%s\033\\" "$OSC")
+      OSC=$(printf '\033Ptmux;\033%s\033\\' "$OSC")
     elif [[ "$TERM" =~ ^screen((-|\.).+)?$ ]]; then
-      OSC=$(printf "\033P%s\033\\" "$OSC")
+      OSC=$(printf '\033P%s\033\\' "$OSC")
     fi
   fi
 
-  printf "%s" "$OSC"
+  printf '%s' "$OSC"
 }
 
 osc52_clip_copy() {
