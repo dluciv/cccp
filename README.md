@@ -6,7 +6,7 @@ Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `
 CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
 
 This tool was initially created for personal use. But you are welcome to contribute, report issues, suggest features, etc.
-I have almost no time to maintain and develop it beyound my personal needs, so the most welcome requests are those coming with pull requests =).
+I have almost no time to maintain and develop it beyound my personal needs, so the most welcome requests are those coming with pull requests 🤓.
 
 ## Usage
 
@@ -59,7 +59,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 * Fan of oldschool editors?
   * Like Midnight Commander and its built-in editor as I do? Find `$XDG_CONFIG_HOME/mc/ini` and edit two settings manually: set `clipboard_store=cccp cf` and 
-`clipboard_paste=cccp p`. Make sure MC will not owerwrite it (e.g. quit all MCs and use another editor to edit MC's ini file =)).
+`clipboard_paste=cccp p`. Make sure MC will not owerwrite it (e.g. quit all MCs and use another editor to edit MC's ini file 🤓).
   * Like Vi(m) as I do too? =) Then `vnoremap <C-F11> y:call system('cccp c', @")<CR>` or use any other shortcut and register you want.
     * *This does not work on remotes with OSC 52 (see below) likely because vim filters command output aggressively. Then use `vnoremap <C-F10> ::w !cccp c<CR><CR>` — it appears to work, but always copies the whole lines with selection. You can also try to give up on cccp and use [this plugin](https://github.com/fcpg/vim-osc52), but it did not copy in my case.*
   * Like something other only using a clipfile? Then take a look at [`watch_clipfile_to_cccp`](utilities/watch_clipfile_to_cccp).
@@ -102,7 +102,7 @@ This is useful for hosts, which a logged on both locally and remotely: in my cas
 
 ## Name
 
-CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻 =).
+CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻🤓.
 
 The reason behind the name was to find some short abbrevation, which is still free. There is another tool — The GNU C-Compatible Compiler Preprocessor — which [theoretically can be invoked as `cccp` on Solaris](https://www.opennet.ru/man.shtml?topic=cccp&category=1), but in the wild life I only met C preprocessor invoked as `cpp`.
 
