@@ -205,6 +205,7 @@ case $BACKEND in
     no_primary
     COPY='pbcopy'
     PASTE='pbpaste'
+    APPEND=append_via_copypaste
   ;;
   xsel)
     # xsel detaches from tty itself
