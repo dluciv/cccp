@@ -15,9 +15,13 @@ autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
   if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
     echo osc52
+  elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v waypaste &>/dev/null; then
+    # wayclip is preferred over wl-clipboard, as wayclip detaches from the terminal correctly
+    echo wayclip
   elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-paste &>/dev/null; then
     echo wl-clipboard
   elif [[ -n "$DISPLAY" ]] && command -v xsel &>/dev/null; then
+    # xsel is preferred over xclip, as xsel detaches from the terminal correctly
     echo xsel
   elif [[ -n "$DISPLAY" ]] && command -v xclip &>/dev/null; then
     echo xclip
@@ -218,6 +222,12 @@ case $BACKEND in
     default_clipboard
     COPY='xclip_copy_nohup'
     PASTE="xclip -selection $BUFFER -out"
+    APPEND=append_via_copypaste
+  ;;
+  wayclip)
+    no_primary
+    COPY='waycopy -t text/plain'
+    PASTE='waypaste -t text/plain'
     APPEND=append_via_copypaste
   ;;
   wl-clipboard)
