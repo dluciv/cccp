@@ -15,11 +15,12 @@ autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
   if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
     echo osc52
-  elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v waypaste &>/dev/null; then
-    # wayclip is preferred over wl-clipboard, as wayclip detaches from the terminal correctly
-    echo wayclip
   elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-paste &>/dev/null; then
     echo wl-clipboard
+  elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v waypaste &>/dev/null; then
+    # wayclip is better then wl-clipboard in detaching from the terminal correctly
+    # but worse in unicode paste
+    echo wayclip
   elif [[ -n "$DISPLAY" ]] && command -v xsel &>/dev/null; then
     # xsel is preferred over xclip, as xsel detaches from the terminal correctly
     echo xsel
