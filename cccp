@@ -106,7 +106,7 @@ wl_copy_nohup() {
   # wl-copy should persist to own clipboard data
   # but it should not occupy terminal
   # shellcheck disable=SC2046
-  cat | nohup wl-copy $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
+  cat | nohup wl-copy --type 'text/plain;charset=utf-8' $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
 }
 
 xclip_copy_nohup() {
@@ -235,7 +235,7 @@ case $BACKEND in
     default_clipboard
     COPY='wl_copy_nohup'
     # shellcheck disable=SC2026
-    PASTE='wl-paste $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n'
+    PASTE="wl-paste --type 'text/plain;charset=utf-8' $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n"
     APPEND=append_via_copypaste
   ;;
   termux-clipboard)
