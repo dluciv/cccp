@@ -19,7 +19,7 @@ autodetect_backend () {
     echo wl-clipboard
   elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v waypaste &>/dev/null; then
     # wayclip is better then wl-clipboard in detaching from the terminal correctly
-    # but worse in unicode paste
+    # but worse in unicode paste to PTY (e.g. to file)
     echo wayclip
   elif [[ -n "$DISPLAY" ]] && command -v xsel &>/dev/null; then
     # xsel is preferred over xclip, as xsel detaches from the terminal correctly
@@ -227,6 +227,8 @@ case $BACKEND in
   ;;
   wayclip)
     no_primary
+    # wayclip ignores charset in parameter, so when pasting to PTY
+    # e.g. file, you can get \u....\u.... instead of text
     COPY='waycopy -t text/plain'
     PASTE='waypaste -t text/plain'
     APPEND=append_via_copypaste
