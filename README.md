@@ -53,9 +53,15 @@ BACKEND=wayland
 
 named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_CONFIG_HOME`).
 
+Also with zero configuration it assumes encoding to be UTF-8. This is important because without specifying mime type, some backends like
+`wl-clipboard` or `wayclip` can turn normal Unicode text to `\uXXXX\uXXXX\uXXXX...` when pasting to PTY, e.g. file.
+As UTF-8 is now used everywhere when ASCII is not enough (e.g. almost everywhere), CCCP by default tells them to use `UTF8_STRING`.
+But you may prefer `KOI8-R` encoding for your system or. I have even seen some people having `LC_ALL=ru_RU.CP1251`, so if they want
+to use CCCP, they should place `MIME='text/plain;charset=windows-1251'` or `MIME='text/plain;charset=koi8-r'` in `cccp.conf`.
+
 #### Hacker notes 🧔
 
-* You can temporarily override backend via environment as follows: `CCCP_BACKEND=whatever cccp ...`.
+* You can temporarily override backend and/or MIME via environment as follows: `CCCP_BACKEND=whatever CCCP_MIME='text/plain;charset=whatever' cccp ...`.
 * `cccp.conf` is just a shell script, so you can place some logic here, e.g. switchng between XOrg and Wayland in Linux (see `cccp` script itself), etc.
 * Fan of oldschool editors?
   * Like Midnight Commander and its built-in editor as I do? Find `$XDG_CONFIG_HOME/mc/ini` and edit two settings manually: set `clipboard_store=cccp cf` and 

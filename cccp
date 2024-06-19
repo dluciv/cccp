@@ -15,12 +15,11 @@ autodetect_backend () {
   # Detect if connected via SSH https://unix.stackexchange.com/a/9607/190164
   if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
     echo osc52
-  elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-paste &>/dev/null; then
-    echo wl-clipboard
   elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v waypaste &>/dev/null; then
     # wayclip is better then wl-clipboard in detaching from the terminal correctly
-    # but worse in unicode paste to PTY (e.g. to file)
     echo wayclip
+  elif [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-paste &>/dev/null; then
+    echo wl-clipboard
   elif [[ -n "$DISPLAY" ]] && command -v xsel &>/dev/null; then
     # xsel is preferred over xclip, as xsel detaches from the terminal correctly
     echo xsel
@@ -106,7 +105,7 @@ wl_copy_nohup() {
   # wl-copy should persist to own clipboard data
   # but it should not occupy terminal
   # shellcheck disable=SC2046
-  cat | nohup wl-copy --type 'text/plain;charset=utf-8' $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
+  cat | nohup wl-copy --type "${MIME}" $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
 }
 
 xclip_copy_nohup() {
@@ -142,7 +141,10 @@ append_via_copypaste() {
   printf "%s" "${CCS%EOI}${ACS%EOI}" | eval "$COPY"
 }
 
-# ===== Configure backend and options =====
+# ===== Configure backend and other options =====
+
+# let default mime be UTF8_STRING
+MIME='UTF8_STRING'
 
 # read config file
 CH="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -152,13 +154,18 @@ if [[ -r "$CH/cccp.conf" ]]; then
 fi
 
 # if CCCP_BACKEND is set, override BACKEND
-if [[ -n "$CCCP_BACKEND" ]]; then # get if from config (preferred) of autodetect
+if [[ -n "$CCCP_BACKEND" ]]; then # get if from config (preferred) or autodetect
   BACKEND=$CCCP_BACKEND
 fi
 
 # if BACKEND is still not set, autodetect it
 if [[ -z "$BACKEND" ]]; then
   BACKEND=$(autodetect_backend)
+fi
+
+# if CCCP_MIME is set, override MIME
+if [[ -n "$CCCP_MIME" ]]; then # get if from config (preferred) or use default
+  MIME=$CCCP_MIME
 fi
 
 # ===== Take switches into account =====
@@ -227,17 +234,15 @@ case $BACKEND in
   ;;
   wayclip)
     no_primary
-    # wayclip ignores charset in parameter, so when pasting to PTY
-    # e.g. file, you can get \u....\u.... instead of text
-    COPY='waycopy -t text/plain'
-    PASTE='waypaste -t text/plain'
+    COPY="waycopy -t '${MIME}'"
+    PASTE="waypaste -t '${MIME}'"
     APPEND=append_via_copypaste
   ;;
   wl-clipboard)
     default_clipboard
     COPY='wl_copy_nohup'
     # shellcheck disable=SC2026
-    PASTE="wl-paste --type 'text/plain;charset=utf-8' $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n"
+    PASTE="wl-paste --type '${MIME}' $(if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) -n"
     APPEND=append_via_copypaste
   ;;
   termux-clipboard)
