@@ -143,8 +143,8 @@ append_via_copypaste() {
 
 # ===== Configure backend and other options =====
 
-# let default mime be UTF8_STRING
-MIME='UTF8_STRING'
+# let default mime be text/plain;charset=utf-8
+MIME='text/plain;charset=utf-8'
 
 # read config file
 CH="${XDG_CONFIG_HOME:-$HOME/.config}"

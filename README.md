@@ -55,7 +55,7 @@ named `~/.config/cccp.conf` (or `$XDG_CONFIG_HOME/cccp.conf` if you have `$XDG_C
 
 Also with zero configuration it assumes encoding to be UTF-8. This is important because without specifying mime type, some backends like
 `wl-clipboard` or `wayclip` can turn normal Unicode text to `\uXXXX\uXXXX\uXXXX...` when pasting to PTY, e.g. file.
-As UTF-8 is now usually used everywhere when ASCII is not enough (e.g. almost everywhere), CCCP by default tells them to use `UTF8_STRING`.
+As UTF-8 is now usually used everywhere when ASCII is not enough (e.g. almost everywhere), CCCP by default tells them to use `text/plain;charset=utf-8`.
 But you may prefer, for example, `KOI8-R` encoding for your system. I have even seen some people having `LC_ALL=ru_RU.CP1251`, so if they
 want to use CCCP, they should place `MIME='text/plain;charset=windows-1251'` or `MIME='text/plain;charset=koi8-r'`, and so on in `cccp.conf`.
 
