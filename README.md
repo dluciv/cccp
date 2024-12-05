@@ -32,11 +32,13 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 #### Manually with Git
 
-You can simply install CCCP by cloning this repository somewhere you like. Then `cccp` can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it). When invoked as `cccp u`, it will even try to update itself.
+You can simply install CCCP by cloning this repository somewhere you like. Then `cccp` can be easily symlinked to any location
+you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it). When invoked as `cccp u`, it will even try to update itself.
 
 #### With Basher
 
-If you use [*basher*](https://www.basher.it/) (which I am not a big fan of, but it looks promising overall), you can install CCCP with `basher install dluciv/cccp` or `basher install github.com/dluciv/cccp`.
+If you use [*basher*](https://www.basher.it/) (which I am not a big fan of, but it looks promising overall), you can install CCCP with
+`basher install dluciv/cccp` or `basher install github.com/dluciv/cccp`. Then you can further manage (e.g. upgrade, uninstall) CCCP with basher.
 
 #### Dependencies / Helpers
 
