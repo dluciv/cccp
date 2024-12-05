@@ -1,6 +1,7 @@
 # CCCP
 
 [![Shell Check](https://github.com/dluciv/cccp/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/dluciv/cccp/actions/workflows/shellcheck.yml)
+[![basher install](https://www.basher.it/assets/logo/basher_install.svg)](https://www.basher.it/)
 
 Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and different alternatives to access clipboard.
 CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
@@ -29,7 +30,15 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 ### Installation
 
-`cccp` can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it).
+#### Manually with Git
+
+You can simply install CCCP by cloning this repository somewhere you like. Then `cccp` can be easily symlinked to any location you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it). When invoked as `cccp u`, it will even try to update itself.
+
+#### With Basher
+
+If you use [*basher*](https://www.basher.it/) (which I am not a big fan of, but it looks promising overall), you can install CCCP with `basher install dluciv/cccp` or `basher install github.com/dluciv/cccp`.
+
+#### Dependencies / Helpers
 
 CCCP is not a standalone tool. For the most platforms, it also depends on tools, which are not always installed by default:
 
