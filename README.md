@@ -2,6 +2,7 @@
 
 [![Shell Check](https://github.com/dluciv/cccp/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/dluciv/cccp/actions/workflows/shellcheck.yml)
 [![basher install](https://www.basher.it/assets/logo/basher_install.svg)](https://www.basher.it/)
+[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://wtfpl.net/about/)
 
 Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and different alternatives to access clipboard.
 CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
