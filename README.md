@@ -122,7 +122,12 @@ This is useful for hosts, which a logged on both locally and remotely: in my cas
 
 CCCP – Common Clipboard Copy &amp; Paste. Those who know Russian may also read it as [«СССР», which is 'USSR' in Russian](https://en.wikipedia.org/wiki/Soviet_Union) ☭🐻🤓.
 
-The reason behind the name was to find some short abbrevation, which is still free. There is another tool — The GNU C-Compatible Compiler Preprocessor — which [theoretically can be invoked as `cccp` on Solaris](https://www.opennet.ru/man.shtml?topic=cccp&category=1), but in the wild life I only met C preprocessor invoked as `cpp`.
+The reason behind the name was to find some short abbrevation, which is free. I have found some usages of this name years before:
+
+* [Combined Community Codec Pack](http://web.archive.org/web/20211009205455/http://www.cccp-project.net/) — great one, but not expected in the wild any more; also named after USSR;
+* the GNU C-Compatible Compiler Preprocessor — which [theoretically can be invoked as `cccp` on Solaris](https://www.opennet.ru/man.shtml?topic=cccp&category=1), but in the wild I only met C preprocessor invoked as `cpp`.
+
+So *this CCCP* now definitely looks more alive than others, and can use this famous name, paying respect to its great predecessors though.
 
 ## Related Work
 
