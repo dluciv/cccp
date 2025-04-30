@@ -196,7 +196,7 @@ while [[ $1 =~ ^--?[a-z0-9]+.*$ ]]; do
   esac
 done
 
-case $(basename $0) in
+case $(basename "$0") in
   ccap)
     DOAPPEND=true
   ;;
