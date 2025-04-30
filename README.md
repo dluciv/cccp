@@ -5,7 +5,7 @@
 [![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://wtfpl.net/about/)
 
 Applications and automation scripts often use `xclip`, `xsel`, `wl-clipboard`, `pbcopy` and different alternatives to access clipboard.
-CCCP aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
+CCCP (Common Clipboard Copy & Paste) aims to be united frontend for them, allowing to free other users and developers from selecting or detecting them.
 
 This tool was initially created for personal use. But you are welcome to contribute, report issues, suggest features, etc.
 I have almost no time to maintain and develop it beyound my personal needs, so the most welcome requests are those coming with pull requests 🤓.
@@ -27,6 +27,13 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 * `-c` or `--clipboard` work with clipboard (default for backends currently supported).
 * `-a` or `--append` append to the end of clipboard (experimental, for the most backends, just copies input to the end of paste).
 
+As CCCP stands for Common Clipboard Copy & Paste, there are also example symlinks in repository,
+named `ccap` (... *append* & paste), `cpcp` (common *primary* ...) and `cpap` (common primary append & paste), which
+do the work in the way like they already received corresponding switches.
+This slightly resembles LISP ([`car`, `cdr`, `cdr`, ...](https://en.wikipedia.org/wiki/CAR_and_CDR)) and
+[BusyBox](https://en.wikipedia.org/wiki/BusyBox) (single executable) approaches and can probably shorten CCCP invokation.
+However I believe this is rarely needed feature.
+
 ## Installation & Configuration
 
 ### Installation
@@ -35,11 +42,14 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
 
 You can simply install CCCP by cloning this repository somewhere you like. Then `cccp` can be easily symlinked to any location
 you already have in your `$PATH`, e.g. `~/.local/bin` (this is how I use it). When invoked as `cccp u`, it will even try to update itself.
+This is also up to you to also symlink `cccp` as `ccap`, `cpcp` and `cpap`.
 
 #### With Basher
 
 If you use [*basher*](https://www.basher.it/) (which I am not a big fan of, but it looks promising overall), you can install CCCP with
-`basher install dluciv/cccp` or `basher install github.com/dluciv/cccp`. Then you can further manage (e.g. upgrade, uninstall) CCCP with basher.
+`basher install dluciv/cccp` or `basher install github.com/dluciv/cccp`. Then you can further manage (e.g. upgrade, uninstall)
+CCCP with basher. Basher appears to be smart enough to handle `ccap`, `cpcp` and `cpap` perfectly, thus creating multiple links
+to all of them.
 
 #### Dependencies / Helpers
 
