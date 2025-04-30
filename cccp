@@ -196,6 +196,19 @@ while [[ $1 =~ ^--?[a-z0-9]+.*$ ]]; do
   esac
 done
 
+case $(basename $0) in
+  ccap)
+    DOAPPEND=true
+  ;;
+  cpcp|cicp)
+    BUFFER=primary
+  ;;
+  cpap|ciap)
+    DOAPPEND=true
+    BUFFER=primary
+  ;;
+esac
+
 # ===== Apply configuration =====
 
 default_clipboard () {
