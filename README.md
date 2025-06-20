@@ -19,6 +19,7 @@ I have almost no time to maintain and develop it beyound my personal needs, so t
   * also `cccp [switches] ac ... ... ...` (Arg Copy)
 * `cccp [switches] cf ...` (Copy File) copies `...` file contents to the clipboard.
   * also `cccp [switches] fc ...` (File Copy)
+* `cccp [switches] e` edits clipboard with `$VISUAL`, if set, else with `$EDITOR`
 * `cccp [switches] t` (killer-feature!) converts clipboard to plain text, working as `cccp p | cccp c`.
 * `cccp u` tries to update itself.
 

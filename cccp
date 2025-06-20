@@ -141,6 +141,20 @@ append_via_copypaste() {
   printf "%s" "${CCS%EOI}${ACS%EOI}" | eval "$COPY"
 }
 
+clip_edit() {
+  [[ -n "$VISUAL" ]] && ED="$VISUAL" || ED="$EDITOR"
+  if [[ -z "$ED" ]]; then
+    >&2 echo 'Set either VISUAL or EDITOR environment variable'
+    return 1
+  fi
+  TMP="${TMPDIR:-/tmp}"
+  TMP_TXT=$(mktemp -p "$TMP" copy_XXXXXX.txt)
+  eval "$PASTE" >"$TMP_TXT"
+  "$ED" "$TMP_TXT"
+  eval "$COPY"  <"$TMP_TXT"
+  rm "$TMP_TXT"
+}
+
 # ===== Configure backend and other options =====
 
 # let default mime be text/plain;charset=utf-8
@@ -371,6 +385,11 @@ case $1 in
     shift 1
     eval "$COPY_OR_APPEND" < "$@"
   ;;
+  e)
+    if ! clip_edit; then
+      exit 1
+    fi
+  ;;
   t)
     if [[ $BACKEND == 'termux-clipboard' ]]; then
       # termux workaround
@@ -391,6 +410,7 @@ case $1 in
     echo '`cccp [switches] p`                       -- paste clipboard to STDOUT'
     echo '`cccp [switches] ca|ac whatever you want` -- copy `whatever you want` to clipboard'
     echo '`cccp [switches] cf|fc file`              -- copy `file` contents to clipboard'
+    echo '`cccp [switches] e`                       -- edit clipboard with $VISUAL, if set, else $EDITOR'
     echo '`cccp [switches] t`                       -- convert clipboard to plain text via paste to copy'
     echo '`cccp u`                                  -- upgrade self, if being in Git'
     echo '`cccp b`                                  -- print current backend'
