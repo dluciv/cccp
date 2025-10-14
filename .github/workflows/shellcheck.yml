@@ -7,7 +7,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run ShellCheck
-        uses: azohra/shell-linter@latest
+        uses: Azbagheri/shell-linter@latest
         with:
           path: "cccp"
           #   - SC2016 when to use single or double quotes,
