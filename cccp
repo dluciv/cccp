@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2016,SC2164,SC2174
-# We know:
-#   - SC2016 when to use single or double quotes,
-#   - SC2174 what mode we do want,
-#   - SC2164 where to pushd so it should not fail =)
-
 # To debug, uncomment
 # set -x
 
