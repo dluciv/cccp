@@ -112,7 +112,7 @@ wl_copy_nohup() {
 xclip_copy_nohup() {
   # xclip should persist to own clipboard data
   # but it should not occupy terminal
-  cat | nohup xclip -selection "$BUFFER" -in &>/dev/null
+  cat | nohup xclip -selection "${BUFFER}" -in -t "${MIME}" &>/dev/null
 }
 
 # -- Two ugly functions for Windows other than Cygwin, MSYS or WSL. --
@@ -257,7 +257,7 @@ case $BACKEND in
   xclip)
     default_clipboard
     COPY='xclip_copy_nohup'
-    PASTE="xclip -selection $BUFFER -out"
+    PASTE="xclip -selection $BUFFER -out -t ${MIME}"
     APPEND=append_via_copypaste
   ;;
   wayclip)
