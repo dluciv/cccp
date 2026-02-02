@@ -47,16 +47,21 @@ ccfiles() {
 }
 
 pfiles() {
-  CCCP_MIME=x-special/gnome-copied-files cccp p | mapfile -t clines
-  local op="${clines[0]}"
-  [[ $op == 'cut' ]] && local cmd=mv || local cmd=cp
-  unset 'clines[0]'
+  {
+    CCCP_MIME='x-special/gnome-copied-files' cccp p
+    echo # newline
+  } | {
+    local op
+    local cmd
+    read -r op
+    [[ $op == 'cut' ]] && cmd='mv' || cmd='cp'
 
-  for l in "${clines[@]}"; do
-    $cmd "$(uri2path "$l")" .
-  done
+    while IFS= read -r l; do
+      $cmd "$(uri2path "$l")" .
+    done
+  }
 
-  CCCP_MIME=x-special/gnome-copied-files cccp ac
+  CCCP_MIME='x-special/gnome-copied-files' cccp ac
 }
 
 case $op in
