@@ -106,13 +106,13 @@ wl_copy_nohup() {
   # wl-copy should persist to own clipboard data
   # but it should not occupy terminal
   # shellcheck disable=SC2046
-  cat | nohup wl-copy --type "${MIME}" $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
+  cat | "$NOHUP" wl-copy --type "${MIME}" $( if [[ $BUFFER == 'primary' ]]; then echo '--primary'; fi ) &>/dev/null
 }
 
 xclip_copy_nohup() {
   # xclip should persist to own clipboard data
   # but it should not occupy terminal
-  cat | nohup xclip -selection "${BUFFER}" -in -t "${MIME}" &>/dev/null
+  cat | "$NOHUP" xclip -selection "${BUFFER}" -in -t "${MIME}" &>/dev/null
 }
 
 # -- Two ugly functions for Windows other than Cygwin, MSYS or WSL. --
@@ -158,6 +158,9 @@ clip_edit() {
 
 # ===== Configure backend and other options =====
 
+# let nohup be nohup until it is undesired
+NOHUP='nohup'
+
 # let default mime be text/plain;charset=utf-8
 MIME='text/plain;charset=utf-8'
 
@@ -181,6 +184,11 @@ fi
 # if CCCP_MIME is set, override MIME
 if [[ -n "$CCCP_MIME" ]]; then # get if from config (preferred) or use default
   MIME=$CCCP_MIME
+fi
+
+# if NO_NOHUP
+if [[ -n "$NO_NOHUP" ]] || [[ -n "$CCCP_NO_NOHUP" ]]; then
+  NOHUP=
 fi
 
 # ===== Take switches into account =====

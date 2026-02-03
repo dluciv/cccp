@@ -27,13 +27,13 @@ ccfiles() {
   op=$1
   shift 1
 
-#  {
-#    for fn in $@; do
-#      path2uri "$fn"
-#    done
-#  } | {
-#    CCCP_MIME=text/uri-list cccp c
-#  }
+  {
+    for fn in $@; do
+      path2uri "$fn"
+    done
+  } | {
+    CCCP_NO_NOHUP=true CCCP_MIME=text/uri-list cccp c
+  }
 
   {
     echo $op
