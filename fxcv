@@ -27,6 +27,7 @@ ccfiles() {
   op=$1
   shift 1
 
+  # sane cccp backends do not support multiple mimes in clipboard...
   # {
   #   for fn in $@; do
   #   path2uri "$fn"
@@ -36,7 +37,7 @@ ccfiles() {
   # }
 
   {
-    echo $op
+    echo "$op"
     for fn in "$@"; do
       path2uri "$fn"
     done
@@ -73,11 +74,17 @@ pfiles() {
 }
 
 case $op in
-  copy|copy)
-    ccfiles "$op" "$@"
+  copy|c)
+    ccfiles copy "$@"
   ;;
-  paste|show)
-    pfiles "$op"
+  cut|x)
+    ccfiles cut "$@"
+  ;;
+  paste|v|p)
+    pfiles paste
+  ;;
+  show|s)
+    pfiles show
   ;;
   *)
     >&2 echo "Command '$op' not supported"
