@@ -47,32 +47,37 @@ ccfiles() {
 }
 
 pfiles() {
+  local op
+  op=$1
   {
     CCCP_MIME='x-special/gnome-copied-files' cccp p
     echo # newline
   } | {
-    local op
-    local cmd
-    read -r op
-    [[ $op == 'cut' ]] && cmd='mv' || cmd='cp'
+    if [[ $op == 'show' ]]; then
+      cat
+    else
+      local fop
+      local cmd
+      read -r fop
+      [[ $fop == 'cut' ]] && cmd='mv' || cmd='cp'
 
-    while IFS= read -r l; do
-      $cmd "$(uri2path "$l")" .
-    done
+      while IFS= read -r l; do
+        if [[ -n "$l" ]]; then
+          $cmd "$(uri2path "$l")" .
+        fi
+      done
+
+      CCCP_MIME='x-special/gnome-copied-files' cccp ac
+    fi
   }
-
-  CCCP_MIME='x-special/gnome-copied-files' cccp ac
 }
 
 case $op in
-  copy)
-    ccfiles copy "$@"
+  copy|copy)
+    ccfiles "$op" "$@"
   ;;
-  cut)
-    ccfiles cut "$@"
-  ;;
-  paste)
-    pfiles
+  paste|show)
+    pfiles "$op"
   ;;
   *)
     >&2 echo "Command '$op' not supported"
