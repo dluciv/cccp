@@ -24,25 +24,25 @@ uri2path() {
 
 ccfiles() {
   local op
+  local mimetype
   op=$1
   shift 1
 
-  # sane cccp backends do not support multiple mimes in clipboard...
-  # {
-  #   for fn in $@; do
-  #   path2uri "$fn"
-  #   done
-  # } | {
-  #  CCCP_NO_NOHUP=true CCCP_MIME=text/uri-list cccp c
-  # }
-
   {
-    echo "$op"
+    # sane cccp backends do not support multiple mimes in clipboard...
+    if [[ $op == 'attach' ]]; then
+      echo 'text/uri-list'
+    else
+      echo 'x-special/gnome-copied-files'
+      echo "$op"
+    fi
+
     for fn in "$@"; do
       path2uri "$fn"
     done
   } | {
-    CCCP_MIME=x-special/gnome-copied-files cccp c
+    read -r mimetype
+    CCCP_MIME="$mimetype" cccp c
   }
 
 }
@@ -50,13 +50,19 @@ ccfiles() {
 pfiles() {
   local op
   op=$1
-  {
+
+  if [[ $op == 'show' ]]; then
+    echo 'x-special/gnome-copied-files:'
     CCCP_MIME='x-special/gnome-copied-files' cccp p
     echo # newline
-  } | {
-    if [[ $op == 'show' ]]; then
-      cat
-    else
+    echo 'text/uri-list:'
+    CCCP_MIME='text/uri-list' cccp p
+    echo # newline
+  else
+    {
+      CCCP_MIME='x-special/gnome-copied-files' cccp p
+      echo # newline
+    } | {
       local fop
       local cmd
       read -r fop
@@ -68,14 +74,17 @@ pfiles() {
         fi
       done
 
-      CCCP_MIME='x-special/gnome-copied-files' cccp ac
-    fi
-  }
+      CCCP_MIME='x-special/gnome-copied-files' cccp ac # cleanup
+    }
+  fi
 }
 
 case $op in
   copy|c)
     ccfiles copy "$@"
+  ;;
+  attach|a)
+    ccfiles attach "$@"
   ;;
   cut|x)
     ccfiles cut "$@"
