@@ -1,28 +1,27 @@
 #!/usr/bin/env bash
 
-PIDFILE=$XDG_RUNTIME_DIR/clipfile_watch.pid
+PIDFILE="${XDG_RUNTIME_DIR}/clipfile_watch.pid"
 
 clipfw_cccp() {
-  fswatch --event Updated --latency 1 $1 | xargs -L 1 cccp cf
+  fswatch --event Updated --latency 1 "$1" | xargs -L 1 cccp cf
 }
 
 clipfw_cccp_stop() {
-  if [ -f $PIDFILE ]
-  then
-    cat $PIDFILE | xargs pkill -P
-    rm $PIDFILE
+  if [ -f "$PIDFILE" ]; then
+    cat "$PIDFILE" | xargs pkill -P
+    rm "$PIDFILE"
   fi
 }
 
 clipfw_cccp_start() {
   clipfw_cccp_stop
-  clipfw_cccp $1 1>/dev/null 2>&1 &
-  echo $! >$PIDFILE
+  clipfw_cccp "$1" 1>/dev/null 2>&1 &
+  echo $! >"$PIDFILE"
 }
 
 case "${1}" in
   start|restart)
-    clipfw_cccp_start $2
+    clipfw_cccp_start "$2"
   ;;
   stop)
     clipfw_cccp_stop

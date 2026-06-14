@@ -44,6 +44,7 @@ autodetect_backend () {
         fi
       ;;
       linux-gnu)
+        local UNAMEA
         UNAMEA=$(uname -a)
         if echo "$UNAMEA" | grep microsoft &>/dev/null && echo "$UNAMEA" | grep WSL &>/dev/null; then
           echo wsl
@@ -76,6 +77,7 @@ wsl_clip_paste() {
 }
 
 osc52_clip_internal_copy() {
+  local OSC
   OSC="\033]52;c;$(cat | base64)\a"
 
   if "${OSC52_BYPASS_MUX:-true}"; then
@@ -93,11 +95,13 @@ osc52_clip_copy() {
   # "${OSC52_BYPASS_MUX:-true}" && bypass_mux=True || bypass_mux=False
   # oscclip.osc52_copy(data: bytes, primary: bool, bypass_mux: True)
   # not yet supported, will always bypass muxes
+  local OSCCLIP_PATH
   OSCCLIP_PATH="$(dirname "$(realpath "$0")")/backends/oscclip"
   python3 -c "import sys; sys.path.insert(0, '${OSCCLIP_PATH}'); import oscclip; oscclip.osc_copy()"
 }
 
 osc52_clip_paste() {
+  local OSCCLIP_PATH
   OSCCLIP_PATH="$(dirname "$(realpath "$0")")/backends/oscclip"
   python3 -c "import sys; sys.path.insert(0, '${OSCCLIP_PATH}'); import oscclip; oscclip.osc_paste()"
 }
@@ -119,6 +123,7 @@ xclip_copy_nohup() {
 # -- Scripting for Windows is, as usual, a kind of feast... --
 
 psh_clip_copy() {
+  local TMP TMP_TXT
   TMP="${TMPDIR:-/tmp}"
   TMP_TXT=$(mktemp -p "$TMP" copy_XXXXXX.txt)
   cat >"$TMP_TXT"
@@ -128,6 +133,7 @@ psh_clip_copy() {
 }
 
 psh_clip_paste() {
+  local TMP TMP_TXT
   TMP="${TMPDIR:-/tmp}"
   TMP_TXT=$(mktemp -p "$TMP" paste_XXXXXX.txt)
   powershell.exe -noprofile -command "Get-Clipboard | Set-Content -Encoding utf8 -Path '$(cygpath -ma "$TMP_TXT")'" >/dev/null
@@ -137,12 +143,14 @@ psh_clip_paste() {
 }
 
 append_via_copypaste() {
+  local CCS ACS
   CCS=$(eval "$PASTE"; printf "EOI")
   ACS=$(cat; printf "EOI")
   printf "%s" "${CCS%EOI}${ACS%EOI}" | eval "$COPY"
 }
 
 clip_edit() {
+  local ED TMP TMP_TXT
   [[ -n "$VISUAL" ]] && ED="$VISUAL" || ED="$EDITOR"
   if [[ -z "$ED" ]]; then
     >&2 echo 'Set either VISUAL or EDITOR environment variable'
@@ -347,6 +355,7 @@ esac
 # ===== Upgrade self =====
 
 upgrade_self() {
+  local SCRIPTPATH _rv
   SCRIPTPATH="$( cd -- "$(dirname "$(realpath "$0")")" >/dev/null 2>&1 ; pwd -P )"
   pushd "${SCRIPTPATH}" >/dev/null
   echo "Updading CCCP in $(pwd)..."
