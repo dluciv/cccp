@@ -1,102 +1,455 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""fxcv -- file clipboard for X11 / XWayland.
 
-# shellcheck disable=SC2016,SC2164,SC2174
-# We know:
-#   - SC2016 when to use single or double quotes,
-#   - SC2174 what mode we do want,
-#   - SC2164 where to pushd so it should not fail =)
+Unlike `cccp`'s backend tools (xclip/xsel/waycopy/wl-copy), which can only
+advertise a single MIME type at a time, fxcv owns the X11 CLIPBOARD
+selection itself and can serve several MIME types with *different* payloads.
 
-# To debug, uncomment
-# set -x
+This is what graphical file managers expect: they publish both
 
-op=$1
-shift 1
+    x-special/gnome-copied-files   ("copy\\n" or "cut\\n" followed by URIs)
+    text/uri-list                  (just the URIs)
 
-path2uri() {
-  local abs_path
-  abs_path=$(readlink -f "$1")
-  echo "$abs_path" | python3 -c 'import pathlib; print(pathlib.Path(input()).as_uri())'
-}
+at once.  On Wayland XWayland mirrors the X11 selection (with all advertised
+targets) into the Wayland clipboard, so native Wayland file managers see both
+MIME types as well.
 
-uri2path() {
-  echo "$1" | python3 -c "import urllib.parse; print(urllib.parse.unquote(input().replace('file://', '')))"
-}
+Operations:
 
-ccfiles() {
-  local op
-  local mimetype
-  op=$1
-  shift 1
+    fxcv copy   <path>...   -- "copy" + "attach" (both MIME types)
+    fxcv cut    <path>...   -- "cut"  + "attach" (both MIME types)
+    fxcv attach <path>...   -- "attach" only (text/uri-list)
+    fxcv paste  [-n]        -- paste/move from the clipboard into "."
+                               (a cut clears the clipboard unless -n is given)
+    fxcv show               -- print what is in the clipboard
+"""
 
-  {
-    # sane cccp backends do not support multiple mimes in clipboard...
-    if [[ $op == 'attach' ]]; then
-      echo 'text/uri-list'
-    else
-      echo 'x-special/gnome-copied-files'
-      echo "$op"
-    fi
+import ctypes as C
+import os
+import select
+import shutil
+import sys
+import time
+import urllib.parse
+from pathlib import Path
 
-    for fn in "$@"; do
-      path2uri "$fn"
-    done
-  } | {
-    read -r mimetype
-    CCCP_MIME="$mimetype" cccp c
-  }
+# --------------------------------------------------------------------------
+# libX11 bindings (ctypes)
+# --------------------------------------------------------------------------
 
-}
+lib = C.CDLL("libX11.so.6")
 
-pfiles() {
-  local op
-  op=$1
+Display = C.c_void_p
+Window = C.c_ulong
+Atom = C.c_ulong
+Bool = C.c_int
+Time = C.c_ulong
 
-  if [[ $op == 'show' ]]; then
-    echo 'x-special/gnome-copied-files:'
-    CCCP_MIME='x-special/gnome-copied-files' cccp p
-    echo # newline
-    echo 'text/uri-list:'
-    CCCP_MIME='text/uri-list' cccp p
-    echo # newline
-  else
-    {
-      CCCP_MIME='x-special/gnome-copied-files' cccp p
-      echo # newline
-    } | {
-      local fop
-      local cmd
-      read -r fop
-      [[ $fop == 'cut' ]] && cmd='mv' || cmd='cp'
+SelectionRequest = 30
+SelectionNotify = 31
+SelectionClear = 29
+PropModeReplace = 0
+XA_ATOM = 4
 
-      while IFS= read -r l; do
-        if [[ -n "$l" ]]; then
-          $cmd "$(uri2path "$l")" .
-        fi
-      done
+FXCV_PROP = "FXCV_PROPERTY"
 
-      CCCP_MIME='x-special/gnome-copied-files' cccp ac # cleanup
-    }
-  fi
-}
 
-case $op in
-  copy|c)
-    ccfiles copy "$@"
-  ;;
-  attach|a)
-    ccfiles attach "$@"
-  ;;
-  cut|x)
-    ccfiles cut "$@"
-  ;;
-  paste|v|p)
-    pfiles paste
-  ;;
-  show|s)
-    pfiles show
-  ;;
-  *)
-    >&2 echo "Command '$op' not supported"
-    exit 1
-  ;;
-esac
+class XSelectionRequestEvent(C.Structure):
+    _fields_ = [
+        ("type", C.c_int), ("serial", C.c_ulong), ("send_event", Bool),
+        ("display", Display), ("owner", Window), ("requestor", Window),
+        ("selection", Atom), ("target", Atom), ("property", Atom),
+        ("time", Time),
+    ]
+
+
+class XSelectionEvent(C.Structure):
+    _fields_ = [
+        ("type", C.c_int), ("serial", C.c_ulong), ("send_event", Bool),
+        ("display", Display), ("requestor", Window), ("selection", Atom),
+        ("target", Atom), ("property", Atom), ("time", Time),
+    ]
+
+
+class XEvent(C.Union):
+    # XEvent is 192 bytes on 64-bit Xlibs; a generous padding is enough.
+    _fields_ = [
+        ("type", C.c_int),
+        ("xselectionrequest", XSelectionRequestEvent),
+        ("xselection", XSelectionEvent),
+        ("pad", C.c_long * 24),
+    ]
+
+
+lib.XOpenDisplay.restype = Display
+lib.XOpenDisplay.argtypes = [C.c_char_p]
+lib.XInternAtom.restype = Atom
+lib.XInternAtom.argtypes = [Display, C.c_char_p, Bool]
+lib.XDefaultRootWindow.restype = Window
+lib.XDefaultRootWindow.argtypes = [Display]
+lib.XCreateSimpleWindow.restype = Window
+lib.XCreateSimpleWindow.argtypes = [
+    Display, Window, C.c_int, C.c_int, C.c_uint, C.c_uint, C.c_uint,
+    C.c_ulong, C.c_ulong]
+lib.XSetSelectionOwner.argtypes = [Display, Atom, Window, Time]
+lib.XGetSelectionOwner.restype = Window
+lib.XGetSelectionOwner.argtypes = [Display, Atom]
+lib.XConvertSelection.argtypes = [Display, Atom, Atom, Atom, Window, Time]
+lib.XChangeProperty.argtypes = [
+    Display, Window, Atom, Atom, C.c_int, C.c_int, C.c_void_p, C.c_int]
+lib.XGetWindowProperty.argtypes = [
+    Display, Window, Atom, C.c_long, C.c_long, Bool, Atom,
+    C.POINTER(Atom), C.POINTER(C.c_int), C.POINTER(C.c_ulong),
+    C.POINTER(C.c_ulong), C.POINTER(C.POINTER(C.c_ubyte))]
+lib.XGetWindowProperty.restype = C.c_int
+lib.XSendEvent.argtypes = [Display, Window, Bool, C.c_long, C.POINTER(XEvent)]
+lib.XNextEvent.argtypes = [Display, C.POINTER(XEvent)]
+lib.XPending.restype = C.c_int
+lib.XPending.argtypes = [Display]
+lib.XFlush.argtypes = [Display]
+lib.XSync.argtypes = [Display, Bool]
+lib.XFree.argtypes = [C.c_void_p]
+lib.XConnectionNumber.restype = C.c_int
+lib.XConnectionNumber.argtypes = [Display]
+
+MIME_GNOME = "x-special/gnome-copied-files"
+MIME_URI = "text/uri-list"
+
+
+# --------------------------------------------------------------------------
+# Little helpers
+# --------------------------------------------------------------------------
+
+def path2uri(path):
+    return Path(path).resolve().as_uri()
+
+
+def uri2path(uri):
+    """Return a local path for a `file://` URI, or None for anything else."""
+    uri = uri.strip()
+    if not uri.startswith("file://"):
+        return None
+    return urllib.parse.unquote(uri[len("file://"):])
+
+
+class X11:
+    def __init__(self):
+        self.dpy = lib.XOpenDisplay(None)
+        if not self.dpy:
+            raise RuntimeError(
+                "cannot open X display (is DISPLAY set? on Wayland XWayland "
+                "is required)")
+        self.clipboard = lib.XInternAtom(self.dpy, b"CLIPBOARD", False)
+        self.targets = lib.XInternAtom(self.dpy, b"TARGETS", False)
+        self.multiple = lib.XInternAtom(self.dpy, b"MULTIPLE", False)
+        self.gnome = lib.XInternAtom(self.dpy, MIME_GNOME.encode(), False)
+        self.uri = lib.XInternAtom(self.dpy, MIME_URI.encode(), False)
+        self.prop = lib.XInternAtom(self.dpy, FXCV_PROP.encode(), False)
+        self.root = lib.XDefaultRootWindow(self.dpy)
+
+    # ---- low level selection interchange ----
+
+    def get_prop(self, window, prop, offset=0, length=0x7FFFFFFF):
+        actual_type = Atom()
+        actual_format = C.c_int()
+        nitems = C.c_ulong()
+        bytes_after = C.c_ulong()
+        data = C.POINTER(C.c_ubyte)()
+        rv = lib.XGetWindowProperty(
+            self.dpy, window, prop, offset, length, True, 0,
+            C.byref(actual_type), C.byref(actual_format), C.byref(nitems),
+            C.byref(bytes_after), C.byref(data))
+        if rv != 0 or nitems.value == 0:
+            return None
+        fmt = actual_format.value
+        # XGetWindowProperty returns format-32 data as an array of `long`.
+        size = {8: 1, 16: C.sizeof(C.c_short),
+                32: C.sizeof(C.c_long)}.get(fmt, 1)
+        raw = C.string_at(C.cast(data, C.c_void_p), nitems.value * size)
+        result = (fmt, nitems.value, raw)
+        lib.XFree(data)
+        return result
+
+    def _send_notify(self, req, prop):
+        reply = XEvent()
+        reply.xselection.type = SelectionNotify
+        reply.xselection.serial = req.serial
+        reply.xselection.send_event = True
+        reply.xselection.display = req.display
+        reply.xselection.requestor = req.requestor
+        reply.xselection.selection = req.selection
+        reply.xselection.target = req.target
+        reply.xselection.property = prop
+        reply.xselection.time = req.time
+        lib.XSendEvent(self.dpy, req.requestor, False, 0, C.byref(reply))
+        lib.XFlush(self.dpy)
+
+    def _serve_into(self, requestor, prop, target):
+        """Write the data for `target` into `prop` on `requestor`."""
+        if target == self.targets:
+            atom_list = [self.targets, self.multiple] + list(self._payloads)
+            arr = (Atom * len(atom_list))(*atom_list)
+            lib.XChangeProperty(self.dpy, requestor, prop, XA_ATOM, 32,
+                                PropModeReplace, C.cast(arr, C.c_void_p),
+                                len(atom_list))
+            return True
+        data = self._payloads.get(target)
+        if data is None:
+            return False
+        buf = C.create_string_buffer(data, len(data))
+        lib.XChangeProperty(self.dpy, requestor, prop, target, 8,
+                            PropModeReplace, C.cast(buf, C.c_void_p), len(data))
+        return True
+
+    def serve_request(self, req):
+        prop = req.property or req.target
+        if req.target == self.multiple:
+            if not req.property:
+                self._send_notify(req, 0)
+                return
+            pairs = self.get_prop(req.requestor, req.property)
+            ok = pairs is not None
+            if ok:
+                _fmt, nitems, raw = pairs
+                atoms = (Atom * nitems).from_buffer_copy(raw)
+                for i in range(0, nitems - 1, 2):
+                    if not self._serve_into(req.requestor, atoms[i + 1],
+                                            atoms[i]):
+                        ok = False
+                        break
+                lib.XFlush(self.dpy)
+            self._send_notify(req, prop if ok else 0)
+            return
+        if self._serve_into(req.requestor, prop, req.target):
+            self._send_notify(req, prop)
+        else:
+            self._send_notify(req, 0)
+
+    # ---- owning the clipboard ----
+
+    def atom(self, name):
+        return lib.XInternAtom(self.dpy, name.encode(), False)
+
+    def take(self, payloads):
+        """Create a window and become the CLIPBOARD owner.
+
+        `payloads` maps MIME type names (or already-interned atoms) to bytes.
+        """
+        self._payloads = {
+            (self.atom(m) if isinstance(m, str) else m): data
+            for m, data in payloads.items()
+        }
+        win = lib.XCreateSimpleWindow(self.dpy, self.root, 0, 0, 1, 1, 0, 0, 0)
+        lib.XSetSelectionOwner(self.dpy, self.clipboard, win, 0)
+        lib.XSync(self.dpy, False)
+        if lib.XGetSelectionOwner(self.dpy, self.clipboard) != win:
+            raise RuntimeError("failed to take the clipboard selection")
+        self._win = win
+
+    def serve(self):
+        """Serve selection requests until somebody else takes the selection."""
+        ev = XEvent()
+        while True:
+            lib.XNextEvent(self.dpy, C.byref(ev))
+            if ev.type == SelectionRequest:
+                try:
+                    self.serve_request(ev.xselectionrequest)
+                except Exception:
+                    # Never let a weird request kill the clipboard owner.
+                    try:
+                        self._send_notify(ev.xselectionrequest, 0)
+                    except Exception:
+                        pass
+            elif ev.type == SelectionClear:
+                return
+
+    # ---- reading the clipboard ----
+
+    def read(self, target, timeout=5.0):
+        owner = lib.XGetSelectionOwner(self.dpy, self.clipboard)
+        if not owner:
+            return None
+        win = lib.XCreateSimpleWindow(self.dpy, self.root, 0, 0, 1, 1, 0, 0, 0)
+        lib.XConvertSelection(self.dpy, self.clipboard, target, self.prop, win, 0)
+        lib.XFlush(self.dpy)
+        deadline = _now() + timeout
+        ev = XEvent()
+        while True:
+            if lib.XPending(self.dpy) == 0:
+                fd = lib.XConnectionNumber(self.dpy)
+                left = deadline - _now()
+                if left <= 0:
+                    return None
+                r, _, _ = select.select([fd], [], [], left)
+                if not r:
+                    return None
+            lib.XNextEvent(self.dpy, C.byref(ev))
+            if (ev.type == SelectionNotify
+                    and ev.xselection.requestor == win
+                    and ev.xselection.selection == self.clipboard
+                    and ev.xselection.target == target):
+                break
+        if not ev.xselection.property:
+            return None
+        got = self.get_prop(win, self.prop)
+        if got is None:
+            return None
+        _fmt, nitems, raw = got
+        lib.XFlush(self.dpy)
+        return raw
+
+    def clear(self):
+        lib.XSetSelectionOwner(self.dpy, self.clipboard, 0, 0)
+        lib.XSync(self.dpy, False)
+
+
+def _now():
+    return time.monotonic()
+
+
+# --------------------------------------------------------------------------
+# Commands
+# --------------------------------------------------------------------------
+
+def daemonize():
+    if os.fork() > 0:
+        os._exit(0)
+    os.setsid()
+    if os.fork() > 0:
+        os._exit(0)
+    devnull = os.open(os.devnull, os.O_RDWR)
+    os.dup2(devnull, 0)
+    os.dup2(devnull, 1)
+    os.dup2(devnull, 2)
+    if devnull > 2:
+        os.close(devnull)
+
+
+PROG = "fxcv"
+
+
+def cmd_set(args, op):
+    if not args:
+        sys.exit("%s: no files given" % PROG)
+    uris = "\n".join(path2uri(p) for p in args) + "\n"
+    payloads = {}
+    if op in ("copy", "cut"):
+        payloads[MIME_GNOME] = (op + "\n" + uris).encode()
+    payloads[MIME_URI] = uris.encode()
+
+    x11 = X11()
+    x11.take(payloads)
+    daemonize()
+    x11.serve()
+
+
+def cmd_paste(no_clear=False):
+    x11 = X11()
+    data = x11.read(x11.gnome)
+    if data is None:
+        data = x11.read(x11.uri)
+    if data is None:
+        sys.exit("%s: nothing to paste" % PROG)
+    text = data.decode("utf-8", "replace")
+    lines = text.splitlines()
+    action = "copy"
+    if lines and lines[0] in ("copy", "cut"):
+        action = lines[0]
+        lines = lines[1:]
+    dest = "."
+    pasted = False
+    failed = False
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        src = uri2path(line)
+        if not src:
+            continue
+        target = os.path.join(dest, os.path.basename(src))
+        if os.path.abspath(src) == os.path.abspath(target):
+            continue
+        try:
+            if action == "cut":
+                shutil.move(src, target)
+            elif os.path.isdir(src):
+                shutil.copytree(src, target, dirs_exist_ok=True)
+            else:
+                shutil.copy2(src, target)
+        except OSError as e:
+            sys.stderr.write("%s: %s: %s\n" % (PROG, src, e.strerror or e))
+            failed = True
+            continue
+        pasted = True
+    # A cut is consumed by pasting: the files moved, so they cannot be pasted
+    # again.  Graphical file managers drop the clipboard here for the same
+    # reason.  A plain copy keeps the files where they are, so the clipboard is
+    # left intact and can be pasted repeatedly.  Keep the clipboard as well if
+    # the cut only partly succeeded (so it can be retried), and with `-n`.
+    if action == "cut" and pasted and not failed and not no_clear:
+        x11.clear()
+    return 1 if failed else 0
+
+
+def cmd_show():
+    x11 = X11()
+    out = sys.stdout.buffer
+    for mime, atom in ((MIME_GNOME, x11.gnome), (MIME_URI, x11.uri)):
+        out.write(("%s:\n" % mime).encode())
+        data = x11.read(atom)
+        if data is not None:
+            out.write(data)
+            if not data.endswith(b"\n"):
+                out.write(b"\n")
+        out.write(b"\n")
+    out.flush()
+
+
+USAGE = """usage: %s <command> [files...]
+  copy|c    <files>   copy files (published as both MIME types)
+  cut|x     <files>   cut files (published as both MIME types)
+  attach|a  <files>   publish files as text/uri-list only
+  paste|v|p [-n]      paste (copy/move) clipboard files into the current dir
+                      -n, --no-clear: keep the clipboard even after a cut
+  show|s              print clipboard contents
+"""
+
+
+def main(argv):
+    global PROG
+    PROG = os.path.basename(argv[0]) or PROG
+    if len(argv) < 2:
+        sys.stderr.write(USAGE % PROG)
+        return 1
+    op = argv[1]
+    args = argv[2:]
+    if op in ("copy", "c"):
+        cmd_set(args, "copy")
+    elif op in ("cut", "x"):
+        cmd_set(args, "cut")
+    elif op in ("attach", "a"):
+        cmd_set(args, "attach")
+    elif op in ("paste", "v", "p"):
+        no_clear = False
+        for arg in args:
+            if arg in ("-n", "--no-clear"):
+                no_clear = True
+            else:
+                sys.stderr.write("%s: unknown paste option %r\n" % (PROG, arg))
+                sys.stderr.write(USAGE % PROG)
+                return 1
+        return cmd_paste(no_clear)
+    elif op in ("show", "s"):
+        cmd_show()
+    else:
+        sys.stderr.write("%s: unknown command %r\n" % (PROG, op))
+        sys.stderr.write(USAGE % PROG)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv))
+    except RuntimeError as e:
+        sys.exit("%s: %s" % (PROG, e))
